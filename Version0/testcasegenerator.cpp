@@ -35,16 +35,16 @@ T rand() {
 
 
 
-const int max_docking_time=100;
+const int max_docking_time=0;
 const int max_number_robots = 3;
-const int max_number_order = 10;
+const int max_number_order = 1;
 const int max_cell_in_order = 5;
 const int max_velocity = 5;
 
 
 
 
-int ROWS,COLS;
+int ROWS=3,COLS=3;
 int docking_time;    //==> T ==> dist + D 
 int num_of_robots;
 int num_of_orders;
@@ -53,8 +53,6 @@ int velocity;
 int main(){
     freopen("input.txt", "w", stdout);
 
-    ROWS = 100;
-    COLS = 100;
     docking_time = rand(0,max_docking_time);
     num_of_orders = rand(1,max_number_order);
     num_of_robots = rand(1,max_number_robots);
