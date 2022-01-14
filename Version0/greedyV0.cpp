@@ -30,6 +30,7 @@ int num_of_robots;
 int num_of_orders;
 int velocity;
 
+
 // class to store details of a single cell
 class Cell{
     public:
@@ -85,9 +86,48 @@ void printTestCaseDetails(){
     }
 }
 
+int cater_curr_order(Order curr_order){
+    // minimum time required to cater this order by a single robot;
+    return 1;
+}
+
+int cater_all_orders(){
+    // how much time it will take to cater all the order by robots.
+
+    // priority queue will store the earliest free time of all robots
+    priority_queue<int,vector<int>,greater<int>>earliest_free_robot;
+
+    // initially all the robots are free at t = 0
+    for(int i = 0 ; i < num_of_robots ; ++i){
+        earliest_free_robot.push(0);
+    }
+
+    int total_time = 0;     // total time taken to cater all order
+
+    // cater all the order one by one
+    // allot the earliest free robot to current order
+    for(int i = 0 ; i < num_of_orders ; ++i){
+        // pick the earliest free robot 
+        int earliest_start = earliest_free_robot.top();
+        earliest_free_robot.pop();
+
+        // assign ith task to that robot
+        int cater_duration = cater_curr_order(allOrders[i]);
+        int finish_time = earliest_start + cater_duration;
+        total_time = max(total_time,finish_time);
+
+        // current robot will be free after finishing the ith task
+        earliest_free_robot.push(finish_time);
+    }
+    return total_time;
+}
+
+
 
 int main(){
     freopen("input.txt","r",stdin);
     take_input();
-    printTestCaseDetails();
+    // printTestCaseDetails();
+    int total_time_taken = cater_all_orders();
+    cout<<"Time taken to complete all orders : "<<total_time_taken<<endl;
 }
