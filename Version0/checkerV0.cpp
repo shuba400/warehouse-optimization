@@ -50,35 +50,14 @@ int distance(Cell a,Cell b){
 
 // class to store all the details related to a single order
 class Order{
-    private:
-        vector<vector<pair<int,pair<int,int>>>> dp; 
+private:
+        vector<vector<pair<int,pair<int,int>>>> dp;
         /*
             dp[mask][l] ==> {time for current pair of mask and last value,{previous_mask,previous_last_value}}
-        */
+        */ 
+        pair<int,pair<int,int>> main_info;
 
-    public:
-    vector<Cell>locations;  // to store coordinates of each item in current order
-    int time;
-    vector<Cell> optimalpath;
-    pair<int,pair<int,int>> main_info;
-
-    void orderSize(int szOrder){
-        locations = vector<Cell>(szOrder);
-    }
-
-    Order(int x,int y){      //This will store the location of starting cell  of the order ==> Mainly the human counter
-        NewLocation(x,y);
-        main_info = {inf,{-1,-1}};
-    }
-
-    void NewLocation(int x,int y){  //takes new order for the cell and calculates the time
-        Cell c;
-        c.x = x;
-        c.y = y;
-        locations.push_back(c);
-    }
-
-    int recur_relation(int mask,int last_element){
+        int recur_relation(int mask,int last_element){
         if(mask == 0) return inf;
         if(dp[mask][last_element].first != -1) return dp[mask][last_element].first;
         dp[mask][last_element].first = inf;
@@ -104,9 +83,32 @@ class Order{
         return;
     }
 
+public:
+
+    vector<Cell>locations;  // to store coordinates of each item in current order
+    int time;
+    vector<Cell> optimalpath;
+
+    void orderSize(int szOrder){
+        locations = vector<Cell>(szOrder);
+    }
+
+    Order(int x,int y){      //This will store the location of starting cell  of the order ==> Mainly the human counter
+        NewLocation(x,y);
+        main_info = {inf,{-1,-1}};
+    }
+
+    void NewLocation(int x,int y){  //takes new order for the cell and calculates the time
+        Cell c;
+        c.x = x;
+        c.y = y;
+        locations.push_back(c);
+    }
+
     int getTime(){
         if(dp.empty()) start_recurrence();
-        return main_info.first;
+        time = main_info.first;
+        return time;
     }
 
     vector<Cell> getPath(){
@@ -149,8 +151,60 @@ void take_input(){
             currOrder.NewLocation(x,y);
         }
         allOrders.push_back(currOrder);
+        allOrders[i].getTime();
     }
 }
+
+pair<int,vector<int>> calculate_robot_assignment(){
+    /*
+        So we need assign each  robot a set of order to process
+        Each robots total time of process is sum of total of orders its process
+        Aim ==> Minimize the maximum possible sum
+        Check function ==> Uses dp to calculate the value 
+
+        Logic of dp
+        we will process the order one by one, for each mask
+        for submask of given mask
+            give this submask to current robot and process rest of the submask with remaining robot
+
+    */
+    int max_mask = 1<<num_of_orders;  //set of all order that we are having
+    vector<vector<pair<int,int>>> dp(num_of_robots + 1,vector<pair<int,int>>(max_mask,{inf,-1}));
+
+    //Utility array which gives total time to execute given set of orders;
+    vector<int> time_for_set(max_mask);
+    for(int mask = 0; mask < max_mask; mask++){
+        for(int i = 0; i < num_of_orders; i++) if((mask>>i)&1) time_for_set[mask] += allOrders[i].getTime();
+    }
+    dp[0][0] = {0,-2};
+    for(int i = 1; i <= num_of_robots; i++){
+        for(int mask = 0; mask < max_mask; mask++){
+            for(int sub_mask = mask; ; sub_mask = (sub_mask - 1)&mask){
+                if(dp[i - 1][sub_mask].first != inf){
+                    pair<int,int> p = {max(dp[i - 1][sub_mask].first,time_for_set[sub_mask^mask]),sub_mask^mask};
+                    dp[i][mask] = min(p,dp[i][mask]);
+                }
+                if(sub_mask == 0) break;
+            }
+        }
+    }
+    //Now operation comes of assigning the robots using backtracking;
+    vector<int> final_assigned_values(num_of_orders);
+    max_mask--;
+    int time = dp[num_of_robots][max_mask].first;
+
+    for(int i = num_of_robots; i > 0; i--){
+        int mask = dp[i][max_mask].second;
+        for(int j = 0; j < num_of_orders; j++){
+            if((mask>>j)&1) final_assigned_values[j] = i;
+        }
+        max_mask ^= mask;
+    }
+    return {time,final_assigned_values};
+}
+
+
+
 void printTestCaseDetails(){
     for(int i = 0 ; i < num_of_orders ; ++i){
         int currOrderSize = allOrders[i].getOrderSize();
@@ -165,9 +219,12 @@ void printTestCaseDetails(){
 int main(){
     freopen("input.txt","r",stdin);
     take_input();
-    cout << allOrders[0].getTime() << endl;
-    vector<Cell> path = allOrders[0].getPath();
-    for(auto &c:path){
-        cout << c.x << ' ' << c.y << endl;
+    pair<int,vector<int>> p = calculate_robot_assignment();
+    cout << "tot time to do all order = ";
+    cout << p.first << endl;
+    for(int i = 0; i < p.second.size(); i++){
+        cout << "Id of robot that will execute order " << i + 1 << ": ";
+        cout << p.second[i] << endl;
     }
+    cout << endl;
 }
