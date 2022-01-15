@@ -220,11 +220,11 @@ int main(){
     freopen("input.txt","r",stdin);
     take_input();
     pair<int,vector<int>> p = calculate_robot_assignment();
-    cout << "tot time to do all order = ";
+    cout << "Time taken to complete all orders : ";
     cout << p.first << endl;
-    for(int i = 0; i < p.second.size(); i++){
-        cout << "Id of robot that will execute order " << i + 1 << ": ";
-        cout << p.second[i] << endl;
-    }
-    cout << endl;
+    // for(int i = 0; i < p.second.size(); i++){
+    //     cout << "Id of robot that will execute order " << i + 1 << ": ";
+    //     cout << p.second[i] << endl;
+    // }
+    // cout << endl;
 }

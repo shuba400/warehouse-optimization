@@ -36,7 +36,7 @@ T rand() {
 
 
 const int max_docking_time=0;
-const int max_number_robots = 3;
+const int max_number_robots = 5;
 const int max_number_order = 9;
 const int max_cell_in_order = 5;
 const int max_velocity = 5;

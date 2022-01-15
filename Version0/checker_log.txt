@@ -1,0 +1,7 @@
+Comparing files greedyV0.txt and CHECKERV0.TXT
+***** greedyV0.txt
+Time taken to complete all orders : 36
+***** CHECKERV0.TXT
+Time taken to complete all orders : 32
+*****
+
