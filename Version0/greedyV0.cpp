@@ -86,9 +86,33 @@ void printTestCaseDetails(){
     }
 }
 
+int manhattan_distance(Cell a, Cell b){
+    return abs(a.x-b.x) + abs(a.y - b.y);
+}
+int min_all_permutation(vector<Cell>&locations,int ind){
+    int sz = locations.size();
+    if(ind==sz-1){
+        Cell starting_point = {0,0};
+        int curr_total_time = manhattan_distance(starting_point,locations[0])+docking_time;
+        for(int i = 1 ; i < sz ; ++i){
+            curr_total_time+=manhattan_distance(locations[i],locations[i-1])+docking_time;
+        }
+        curr_total_time+=manhattan_distance(starting_point,locations[sz-1])+docking_time;
+        return curr_total_time;
+    }
+    int min_time = 2e9;
+    for(int i = ind; i < sz ; ++i){
+        swap(locations[i],locations[sz-1]);
+        min_time = min(min_time,min_all_permutation(locations,ind+1));
+        swap(locations[i],locations[sz-1]);
+    }
+    return min_time;
+}
+
 int cater_curr_order(Order curr_order){
     // minimum time required to cater this order by a single robot;
-    return 1;
+    int min_time = min_all_permutation(curr_order.locations,0);
+    return min_time;
 }
 
 int cater_all_orders(){
