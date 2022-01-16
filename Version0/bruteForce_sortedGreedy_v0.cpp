@@ -90,22 +90,22 @@ int manhattan_distance(Cell a, Cell b){
     return abs(a.x-b.x) + abs(a.y - b.y);
 }
 
-int min_all_permutation(vector<Cell>&cells,int ind){
-    int sz = cells.size();
-    if(ind==sz-1){
+int min_all_permutation(vector<Cell>&cells,int l){
+    int r = cells.size()-1;
+    if(l==r){
         Cell starting_point = {0,0};
         int curr_total_time = manhattan_distance(starting_point,cells[0])+docking_time;
-        for(int i = 1 ; i < sz ; ++i){
+        for(int i = 1 ; i <=r ; ++i){
             curr_total_time+=manhattan_distance(cells[i],cells[i-1])+docking_time;
         }
-        curr_total_time+=manhattan_distance(starting_point,cells[sz-1])+sz*docking_time;
+        curr_total_time+=manhattan_distance(starting_point,cells[r])+(cells.size())*docking_time;
         return curr_total_time;
     }
     int min_time = INT_MAX;
-    for(int i = ind; i < sz ; ++i){
-        swap(cells[i],cells[sz-1]);
-        min_time = min(min_time,min_all_permutation(cells,ind+1));
-        swap(cells[i],cells[sz-1]);
+    for(int i = l; i <= r ; ++i){
+        swap(cells[l],cells[i]);
+        min_time = min(min_time,min_all_permutation(cells,l+1));
+        swap(cells[l],cells[i]);
     }
     return min_time;
 }
