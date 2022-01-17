@@ -98,7 +98,7 @@ int min_all_permutation(vector<Cell>&cells,int l){
         for(int i = 1 ; i <=r ; ++i){
             curr_total_time+=manhattan_distance(cells[i],cells[i-1])+docking_time;
         }
-        curr_total_time+=manhattan_distance(starting_point,cells[r])+(cells.size())*docking_time;
+        curr_total_time+=manhattan_distance(starting_point,cells[r])+docking_time;
         return curr_total_time;
     }
     int min_time = INT_MAX;

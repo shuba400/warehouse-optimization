@@ -89,22 +89,22 @@ void printTestCaseDetails(){
 int manhattan_distance(Cell a, Cell b){
     return abs(a.x-b.x) + abs(a.y - b.y);
 }
-int min_all_permutation(vector<Cell>&locations,int ind){
-    int sz = locations.size();
-    if(ind==sz-1){
+int min_all_permutation(vector<Cell>&cells,int l){
+    int r = cells.size()-1;
+    if(l==r){
         Cell starting_point = {0,0};
-        int curr_total_time = manhattan_distance(starting_point,locations[0])+docking_time;
-        for(int i = 1 ; i < sz ; ++i){
-            curr_total_time+=manhattan_distance(locations[i],locations[i-1])+docking_time;
+        int curr_total_time = manhattan_distance(starting_point,cells[0])+docking_time;
+        for(int i = 1 ; i <=r ; ++i){
+            curr_total_time+=manhattan_distance(cells[i],cells[i-1])+docking_time;
         }
-        curr_total_time+=manhattan_distance(starting_point,locations[sz-1])+docking_time;
+        curr_total_time+=manhattan_distance(starting_point,cells[r])+docking_time;
         return curr_total_time;
     }
-    int min_time = 2e9;
-    for(int i = ind; i < sz ; ++i){
-        swap(locations[i],locations[sz-1]);
-        min_time = min(min_time,min_all_permutation(locations,ind+1));
-        swap(locations[i],locations[sz-1]);
+    int min_time = INT_MAX;
+    for(int i = l; i <= r ; ++i){
+        swap(cells[l],cells[i]);
+        min_time = min(min_time,min_all_permutation(cells,l+1));
+        swap(cells[l],cells[i]);
     }
     return min_time;
 }
