@@ -17,7 +17,14 @@ Docking time ==> time required pick a single time from rack/cell
     v*t = dist + x*d*v ==> sanity check to reduce precision issue (temprory solution)
 */
 
-
+/*
+    Warehouse size : 810,000 sq ft => 900ft x 900ft => 270m x 270m ~~ 250m x 250m 
+    robot velocity : 2m/s   (to reconfirm)
+    no. of robots  : 800
+    no. of orders  : 1.6 million (to reconfirm, will be less than this because this order should be
+                     distributed among all warehouses of amazon)
+    docking time   : 10s (no data right now, just taken as 10s)
+*/
 
 #include<bits/stdc++.h>
 using namespace std;
@@ -32,19 +39,19 @@ T rand() {
     return uniform_int_distribution<T>()(rng);
 }
 
-
-
-
-const int max_docking_time=0;
-const int max_number_robots = 5;
-const int max_number_order = 9;
+const int max_docking_time = 10;
+const int max_number_robots = 800;      // 800 robots can be deployed in one floor
+// right now taking order count as 1.6*10^4
+//  total order tha "whole" amazon receives 1.6*10^6
+// assuming at least 100 warehouses
+// will try to find data 
+const int max_number_order = 16000;   // max number of orders a warehouse shifts | 
+                                    // amazon gets 1.6 million orders, but a warehouse will cater smaller no. of orders
 const int max_cell_in_order = 5;
-const int max_velocity = 5;
+const int max_velocity = 2;         // 2m/s
 
 
-
-
-int ROWS=3,COLS=3;
+int ROWS = 250, COLS = 250;     // 250m x 250m 
 int docking_time;    //==> T ==> dist + D 
 int num_of_robots;
 int num_of_orders;
@@ -53,10 +60,16 @@ int velocity;
 int main(){
     freopen("input.txt", "w", stdout);
 
-    docking_time = rand(0,max_docking_time);
-    num_of_orders = rand(1,max_number_order);
-    num_of_robots = rand(1,max_number_robots);
-    velocity = rand(1,max_velocity);
+    // docking_time = rand(0,max_docking_time);
+    // num_of_orders = rand(1,max_number_order);
+    // num_of_robots = rand(1,max_number_robots);
+    // velocity = rand(1,max_velocity);
+
+    docking_time = 0 ; 
+    num_of_orders = max_number_order;
+    num_of_robots = max_number_robots;
+    velocity = max_velocity;
+    docking_time = max_docking_time;
 
     cout << ROWS << " "  << COLS << " " <<  docking_time << " " << velocity << endl;
     cout << num_of_robots << " " << num_of_orders << endl;
