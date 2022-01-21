@@ -1,1 +1,12 @@
-Time taken to complete all orders : 36
+Time taken to complete all orders : 
+15748
+Time taken to complete all orders : 
+15784
+Time taken to complete all orders : 
+15736
+Time taken to complete all orders : 
+15644
+Time taken to complete all orders : 
+15786
+Time taken to complete all orders : 
+15772

@@ -13,8 +13,6 @@
     t = dist/v + x*d    
     v*t = dist + x*d*v ==> sanity check to reduce precision issue (temprory solution)
 */
-
-
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -215,8 +213,7 @@ void printTestCaseDetails(){
 }
 
 
-int main(){
-    freopen("input.txt","r",stdin);
+int cal_for_given_test(){
     take_input();
         pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
@@ -254,5 +251,14 @@ int main(){
         }           
         cout<<"(0,0)"; 
         cout<<"\n";
+    }
+}
+
+int main(){
+    freopen("input.txt","r",stdin);
+    int test = 1;
+    cin >> test;
+    while(test--){
+        cal_for_given_test();
     }
 }

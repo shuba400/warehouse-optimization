@@ -146,12 +146,18 @@ int cater_all_orders(){
     return total_time;
 }
 
-
-
-int main(){
-    freopen("input.txt","r",stdin);
+void cal_for_given_test(){
     take_input();
     // printTestCaseDetails();
     int total_time_taken = cater_all_orders();
-    cout<<"Time taken to complete all orders : "<<total_time_taken<<endl;
+    cout<<"Time taken to complete all orders : \n"<<total_time_taken<<"\n";
+}
+
+int main(){
+    freopen("input.txt","r",stdin);
+    int test = 1;
+    cin >> test;
+    while(test--){
+        cal_for_given_test();
+    }
 }

@@ -1,11 +1,5 @@
 @echo off
-
-
-for /l %%x in (1, 1, 1000) do (
-    testcasegenerator
-    greedyV0 > greedyV0.txt
-    checkerV0  > checkerV0.txt
-    fc greedyV0.txt checkerV0.txt > checker_log.txt || exit /b
-    echo %%x
-)
-echo all tests passed
+testcasegenerator
+bruteForce_fcfsGreedy_v0 > output_bruteForce_fcfsGreedy_v0.txt
+bruteForce_sortedGreedy_v0  > output_bruteForce_sortedGreedy_v0.txt
+comparison

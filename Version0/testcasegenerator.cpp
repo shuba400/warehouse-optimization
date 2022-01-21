@@ -57,8 +57,7 @@ int num_of_robots;
 int num_of_orders;
 int velocity;
 
-int main(){
-    freopen("input.txt", "w", stdout);
+void out_for_test(){
 
     // docking_time = rand(0,max_docking_time);
     // num_of_orders = rand(1,max_number_order);
@@ -90,4 +89,14 @@ int main(){
         cout << endl;
     }
 
+}
+
+
+int main(){
+    freopen("input.txt", "w", stdout);
+    int test_case = 6;
+    cout << test_case << endl;
+    while(test_case--){
+        out_for_test();
+    }
 }

@@ -166,48 +166,55 @@ pair<int,vector<vector<int>>> caterAllOrders(){
 }
 
 
-
-int main(){
-    freopen("input.txt","r",stdin);
+void cal_for_given_test(){
     take_input();
     // printTestCaseDetails();
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
-    cout<<"Time taken to complete all orders : "<<totalTimeTaken<<"\n\n";
+    cout<<"Time taken to complete all orders : \n"<<totalTimeTaken<<"\n";
 
-    cout<<"Each Order's optimal cell visiting sequence:\n";
-    for(int i=0;i<num_of_orders;i++)
-    {
-        cout<<"Order "<<i+1<<": ";
-        for(int j=0;j<allOrders[i].cells.size();j++)
-            cout<<"("<<allOrders[i].cells[j].x<<","<<allOrders[i].cells[j].y<<") ";
-        cout<<"\n";
+    // cout<<"Each Order's optimal cell visiting sequence:\n";
+    // for(int i=0;i<num_of_orders;i++)
+    // {
+    //     cout<<"Order "<<i+1<<": ";
+    //     for(int j=0;j<allOrders[i].cells.size();j++)
+    //         cout<<"("<<allOrders[i].cells[j].x<<","<<allOrders[i].cells[j].y<<") ";
+    //     cout<<"\n";
+    // }
+    // cout<<"\n";
+
+    // cout<<"Assignments of Orders to Robots:\n";
+    // for(int i=0;i<num_of_robots;i++)
+    // {
+    //     cout<<"Robot "<<i+1<<": ";
+    //     for(int j=0;j<robotTasks[i].size();j++)
+    //         cout<<robotTasks[i][j]+1<<" ";
+    //     cout<<"\n";
+    // }
+    // cout<<"\n";
+
+    // cout<<"Each Robot's Path:\n";
+    // for(int i=0;i<num_of_robots;i++)
+    // {
+    //     cout<<"Robot "<<i+1<<": ";
+    //     for(int j=0;j<robotTasks[i].size();j++)
+    //     {
+    //         cout<<"(0,0) ";
+    //         for(int k=0;k<allOrders[robotTasks[i][j]].cells.size();k++)
+    //             cout<<"("<<allOrders[robotTasks[i][j]].cells[k].x<<","<<allOrders[robotTasks[i][j]].cells[k].y<<") ";
+    //     }           
+    //     cout<<"(0,0)"; 
+    //     cout<<"\n";
+    // }
+
+}
+
+int main(){
+    freopen("input.txt","r",stdin);
+    int test = 1;
+    cin >> test;
+    while(test--){
+        cal_for_given_test();
     }
-    cout<<"\n";
-
-    cout<<"Assignments of Orders to Robots:\n";
-    for(int i=0;i<num_of_robots;i++)
-    {
-        cout<<"Robot "<<i+1<<": ";
-        for(int j=0;j<robotTasks[i].size();j++)
-            cout<<robotTasks[i][j]+1<<" ";
-        cout<<"\n";
-    }
-    cout<<"\n";
-
-    cout<<"Each Robot's Path:\n";
-    for(int i=0;i<num_of_robots;i++)
-    {
-        cout<<"Robot "<<i+1<<": ";
-        for(int j=0;j<robotTasks[i].size();j++)
-        {
-            cout<<"(0,0) ";
-            for(int k=0;k<allOrders[robotTasks[i][j]].cells.size();k++)
-                cout<<"("<<allOrders[robotTasks[i][j]].cells[k].x<<","<<allOrders[robotTasks[i][j]].cells[k].y<<") ";
-        }           
-        cout<<"(0,0)"; 
-        cout<<"\n";
-    }
-
 }
