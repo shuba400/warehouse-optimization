@@ -18,6 +18,14 @@ To Do ==> Probably add a maker process to automate this part
 ```
 ./script.bat
 ```
+### 3) Expected Format output
+If you have an output in following format then give yourself a pat on back, you know how to use this unintentionally complicated way of checking 2 cpp files.
+```
+fcfs_approach 15816  15750  15870  15774  15784  15786
+sort_approach 15186  15188  15240  15188  15196  15194
+Better_Approach_FCFS 0  0  0  0  0  0
+Better_Approach_SORT 1  1  1  1  1  1
+```
 
 ## Edit Instruction
 I have made a comparison.cpp file, which if done a brief overview is easy to observe that I used used file stream instead of cin to read different files simultaneously. So to add custom check type, just change the comparison.cpp file.
