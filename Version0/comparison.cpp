@@ -37,4 +37,30 @@ int main(){
     for(int i = 0; i < test_case; i++){
         cout << (sort_approach[i] <= fcfs_approach[i]) << " ";
     }
+    cout<<endl;
+    // percentage better 
+    cout<<"\nPercentage improvement (better one)\n";
+    cout << "FCFS" << " ";
+    for(int i = 0; i < test_case; i++){
+        if((sort_approach[i] >= fcfs_approach[i])){
+            int diff = sort_approach[i] - fcfs_approach[i];
+            double prcnt = ((diff*1.0)/sort_approach[i])*(100.0);
+            cout<<prcnt<<"% ";
+        }
+        else{
+            cout<<"0% ";
+        }
+    }
+    cout << endl;
+    cout << "SORT" << " ";
+    for(int i = 0; i < test_case; i++){
+        if((sort_approach[i] <= fcfs_approach[i])){
+            int diff = fcfs_approach[i] - sort_approach[i];
+            double prcnt = ((diff*1.0)/fcfs_approach[i])*(100.0);
+            cout<<prcnt<<"% ";
+        }
+        else{
+            cout<<"0% ";
+        }
+    }
 }
