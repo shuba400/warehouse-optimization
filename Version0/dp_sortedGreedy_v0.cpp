@@ -252,6 +252,7 @@ int cal_for_given_test(){
         cout<<"(0,0)"; 
         cout<<"\n";
     }
+    return totalTimeTaken;
 }
 
 int main(){

@@ -1,7 +1,6 @@
 #include<bits/stdc++.h>
 using namespace std;
-
-
+const double velocity = 80.4672; // metre per minute
 int main(){
     vector<int> fcfs_approach,sort_approach;
     ifstream inFile1("output_bruteForce_fcfsGreedy_v0.txt"); 
@@ -21,11 +20,12 @@ int main(){
         time = stoi(b);
         sort_approach.push_back(time);
     }
+    cout<<"\n Time in minutes\n";
     cout << "fcfs_approach" << " ";
-    for(auto &x:fcfs_approach) cout << x << " ";
+    for(auto &x:fcfs_approach) cout << (x*1.0)/velocity << " ";
     cout << endl;
     cout << "sort_approach" << " ";
-    for(auto &x:sort_approach) cout << x << " ";
+    for(auto &x:sort_approach) cout << (x*1.0)/velocity << " ";
     cout << endl;
 
     cout << "Better_Approach_FCFS" << " ";
