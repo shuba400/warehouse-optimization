@@ -30,6 +30,52 @@ Better_Approach_SORT 1  1  1  1  1  1
 ## Edit Instruction
 I have made a comparison.cpp file, which if done a brief overview is easy to observe that I used used file stream instead of cin to read different files simultaneously. So to add custom check type, just change the comparison.cpp file.
 
+## Logic Explanation
 
-## ToDo
-Adding a maker(for automate building also) might help
+So for both greedy strategies we require a utility function to calculate time taken to complete an order by 1 robot, (starting from source, visit coordinates in some order and take items at that coordinate, come back to source). 
+We have to done it using brute force approach as total number of orders are less than 7, so we have to process 7! orders which is not that time taking.
+```
+for each order:
+	intialize order.time = INF
+	for permutation in all_permutation_of_order:
+		order.time = min(order.time,time_to_complete_present_permutation)
+```
+### FCFS Approach
+
+Now for First Come First Serve Approach as the name implies, as the new orders are coming, we assign a robot which is going to be free at the earliest possible time to this order
+To keep track of earlies free time, we can use data structure like min heap
+```
+initialize <priority_queue> queue //min-heap the basis of R.time
+for each robot R in robots:
+	initialize R.time = 0
+	push(R)
+
+for order O in Orders
+	earliest_free_robot(R) <-- queue.top()
+	pop from queue
+	R.time 	<-- R.time + O.time 
+	R.order <-- R.orders + O
+	push(R)
+```
+Now once this is done we have the orders that each robot will process and time taken to complete its order, (this we have to coordinated each robot will visit)
+
+### SORT Approach
+Since each order takes non uniform time, one of the intuitive approach can be to sort order on the basis of decreasing time and then do the greedy strategy we followed in FCFS approach
+```
+initialize <priority_queue> queue  
+for each robot R in robots:
+	initialize R.time = 0
+	push(R)
+
+sort(Orders) //sorts order in decreasing order according to time
+
+for order O in Orders
+	earliest_free_robot(R) <-- queue.top()
+	pop from queue
+	R.time 	<-- R.time + O.time 
+	R.order <-- R.orders + O
+	push(R)
+```
+In all the random test cases that we generated
+Time(FCFS) >= Time(SORT)
+
