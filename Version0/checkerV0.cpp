@@ -20,7 +20,7 @@ using namespace std;
 
 const int inf = 1e9;
 
-const int max_docking_time=100;
+const int max_docking_time=12;
 const int max_number_robots = 3;
 const int max_number_order = 10;
 const int max_cell_in_order = 5;

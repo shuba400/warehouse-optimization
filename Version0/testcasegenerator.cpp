@@ -15,6 +15,7 @@ SIZE_OF_NEW_ORDER
 Docking time ==> time required pick a single time from rack/cell
     t = dist/v + x*d    
     v*t = dist + x*d*v ==> sanity check to reduce precision issue (temprory solution)
+                    d*v = 12 // taking d as 9s and v as 80.4672metre/minute
 */
 
 /*
@@ -22,7 +23,8 @@ Docking time ==> time required pick a single time from rack/cell
     robot velocity : 1.3m/s 
     no. of robots  : 800
     no. of orders  : 1.6*10^4 (1.6*10^6/100 , 1.6 million orders per day, 175 warehouses globally)
-    docking time   : 10s (no data right now, just taken as 10s)
+    docking time   : no data 
+                     taking it as 9s = 0.15minutes => d*v = 12.07, round off to 12 
 */
 
 #include<bits/stdc++.h>
@@ -38,8 +40,8 @@ T rand() {
     return uniform_int_distribution<T>()(rng);
 }
 
-const int max_docking_time = 10;
-const int max_number_robots = 800;      // 800 robots can be deployed in one floor
+const int max_docking_time = 12;        
+const int max_number_robots = 100;      // 800 robots can be deployed in one floor
 // right now taking order count as 1.6*10^4
 //  total order tha "whole" amazon receives 1.6*10^6
 // assuming at least 100 warehouses
