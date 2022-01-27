@@ -1,0 +1,12 @@
+Time taken to complete all orders : 
+122100
+Time taken to complete all orders : 
+122626
+Time taken to complete all orders : 
+122286
+Time taken to complete all orders : 
+122056
+Time taken to complete all orders : 
+122096
+Time taken to complete all orders : 
+122388
