@@ -29,6 +29,7 @@ int docking_time;    //==> T ==> dist + D
 int num_of_robots;
 int num_of_orders;
 int velocity;
+int max_capacity_robot;
 
 
 // class to store details of a single cell
@@ -136,7 +137,7 @@ vector<Order>allOrders;  // vector containing details of all orders
 void take_input(){
 
     cin>>ROWS>>COLS;
-    cin>>docking_time>>velocity;
+    cin>>docking_time>>velocity >> max_capacity_robot;
     cin>>num_of_robots>>num_of_orders;
     allOrders.clear();
     for(int i = 0 ; i < num_of_orders;++i){

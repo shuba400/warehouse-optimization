@@ -61,7 +61,7 @@ void take_input(){
     cin>>ROWS>>COLS;
     cin>>docking_time>>velocity;
     cin>>num_of_robots>>num_of_orders;
-    
+    allOrders.clear();
     allOrders = vector<Order>(num_of_orders);
 
     for(int i = 0 ; i < num_of_orders;++i){
