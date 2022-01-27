@@ -60,9 +60,9 @@ private:
         if(mask == 0) return inf;
         if(dp[mask][last_element].first != -1) return dp[mask][last_element].first;
         dp[mask][last_element].first = inf;
-        for(int i = 0; i < locations.size(); i++){
+        for(int i = 0; i < cells.size(); i++){
             if(((mask>>i)&1) == 0 || last_element == i) continue;
-            pair<int,pair<int,int>> temp = {recur_relation(mask^(1<<last_element),i) + distance(locations[i],locations[last_element]) + docking_time,{(mask^(1<<last_element)),i}};
+            pair<int,pair<int,int>> temp = {recur_relation(mask^(1<<last_element),i) + distance(cells[i],cells[last_element]) + docking_time,{(mask^(1<<last_element)),i}};
 
             dp[mask][last_element] = min(dp[mask][last_element],temp);
         }
@@ -71,12 +71,12 @@ private:
 
     void start_recurrence(){  //used travelling salesman problem to get the minimum time needed to complete the order with given docking time.
         time = 0;
-        int tot_number_of_element = locations.size();                          
+        int tot_number_of_element = cells.size();                          
         pair<int,pair<int,int>> filler_value = {-1,{-1,-1}};  //used to intialize the dp states
         dp.resize(1<<tot_number_of_element,vector<pair<int,pair<int,int>>>(tot_number_of_element,filler_value));
         dp[1][0] = {0,{-1,-1}};   //current mask = 0000001, current last cell is  0, this is basically saying that when element is at position 0 , t = 0 intially
         for(int i = 1; i < tot_number_of_element; i++){
-            pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + distance(locations[i],locations[0]) + docking_time,{(1<<tot_number_of_element) - 1,i}};
+            pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + cells[i].x + docking_time,{(1<<tot_number_of_element) - 1,i}};
             main_info = min(main_info,p);
         }
         return;
@@ -84,12 +84,12 @@ private:
 
 public:
 
-    vector<Cell>locations;  // to store coordinates of each item in current order
+    vector<Cell>cells;  // to store coordinates of each item in current order
     int time;
     vector<Cell> optimalpath;
 
     void orderSize(int szOrder){
-        locations = vector<Cell>(szOrder);
+        cells = vector<Cell>(szOrder);
     }
 
     Order(int x,int y){      //This will store the location of starting cell  of the order ==> Mainly the human counter
@@ -101,7 +101,7 @@ public:
         Cell c;
         c.x = x;
         c.y = y;
-        locations.push_back(c);
+        cells.push_back(c);
     }
 
     int getTime(){
@@ -116,7 +116,7 @@ public:
         int main_mask = main_info.second.first;
         int last_element = main_info.second.second;
         while(last_element > -1){
-            optimalpath.push_back(locations[last_element]);
+            optimalpath.push_back(cells[last_element]);
             int new_last_element = dp[main_mask][last_element].second.second;
             int new_main_mask = dp[main_mask][last_element].second.first;
             last_element = new_last_element;
@@ -128,7 +128,7 @@ public:
     }
     
     int getOrderSize(){
-        return locations.size();
+        return cells.size();
     }
 };
 
@@ -208,7 +208,7 @@ void printTestCaseDetails(){
         int currOrderSize = allOrders[i].getOrderSize();
         cout<<currOrderSize<<endl;
         for(int j = 0 ; j < currOrderSize; ++j){
-            cout<<allOrders[i].locations[j].x<<" "<<allOrders[i].locations[j].y<<endl;
+            cout<<allOrders[i].cells[j].x<<" "<<allOrders[i].cells[j].y<<endl;
         }
     }
 }

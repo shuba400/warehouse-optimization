@@ -41,7 +41,7 @@ T rand() {
 }
 
 const int max_docking_time = 12;        
-const int max_number_robots = 100;      // 800 robots can be deployed in one floor
+const int max_number_robots = 800;      // 800 robots can be deployed in one floor
 // right now taking order count as 1.6*10^4
 //  total order tha "whole" amazon receives 1.6*10^6
 // assuming at least 100 warehouses
