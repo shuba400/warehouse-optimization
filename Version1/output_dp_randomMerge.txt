@@ -1,12 +1,12 @@
 Time taken to complete all orders : 
-12092
+67259
 Time taken to complete all orders : 
-12067
+68447
 Time taken to complete all orders : 
-12082
+66891
 Time taken to complete all orders : 
-12086
+68180
 Time taken to complete all orders : 
-12092
+67892
 Time taken to complete all orders : 
-12082
+67382

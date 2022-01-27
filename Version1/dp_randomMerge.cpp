@@ -165,7 +165,29 @@ pair<int,vector<vector<int>>> caterAllOrders(){
         sortedOrders.push_back(i);
     }
     sort(sortedOrders.begin(),sortedOrders.end(),compOrders);
-
+    vector<Order> mergedOrder;
+    Order currSetOrder;
+    int currsum = 0; 
+    Cell c;
+    for(auto &ind:sortedOrders){
+        if(currsum + allOrders[ind].cells.size() - 1 > max_capacity_robot){
+            mergedOrder.push_back(currSetOrder);
+            currsum = 0;
+            currSetOrder = Order();
+            c.x = 0;
+            c.y = 0;
+            currSetOrder.cells.push_back(c);
+        }
+        currsum += allOrders[ind].cells.size() - 1;
+        for(int i = 1; i < allOrders[ind].cells.size(); i++){
+            currSetOrder.cells.push_back(allOrders[ind].cells[i]);
+        }
+    }
+    mergedOrder.push_back(currSetOrder);
+    for(int i = 0; i < mergedOrder.size(); i++){
+        mergedOrder[i].getPath();
+        mergedOrder[i].getTime();
+    }
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
 
@@ -179,15 +201,15 @@ pair<int,vector<vector<int>>> caterAllOrders(){
 
     // cater all the order one by one
     // allot the earliest free robot to current order
-    for(int i = 0 ; i < num_of_orders ; ++i){
+    for(int i = 0 ; i < mergedOrder.size() ; ++i){
         // pick the earliest free robot 
         int earliestFreeRobot=robotFreeTimes.top().second;
         int freeTime=robotFreeTimes.top().first;
         robotFreeTimes.pop();
-        robotTasks[earliestFreeRobot].push_back(sortedOrders[i]);
+        robotTasks[earliestFreeRobot].push_back(0);
 
         // assign ith task to that robot
-        int cateringTime = allOrders[sortedOrders[i]].time;
+        int cateringTime = mergedOrder[i].time;
         int finishTime = freeTime + cateringTime;
         totalTime = max(totalTime,finishTime);
 
