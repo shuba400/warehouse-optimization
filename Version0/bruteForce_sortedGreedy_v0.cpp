@@ -17,6 +17,7 @@
 
 #include<bits/stdc++.h>
 using namespace std;
+#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 
 const int max_docking_time=12;
 const int max_number_robots = 3;
@@ -211,6 +212,7 @@ void cal_for_given_test(){
 }
 
 int main(){
+    FASTIO;
     freopen("input.txt","r",stdin);
     int test = 1;
     cin >> test;

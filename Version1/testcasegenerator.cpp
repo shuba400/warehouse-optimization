@@ -20,15 +20,16 @@ Docking time ==> time required pick a single time from rack/cell
 
 /*
     Warehouse size : 810,000 sq ft => 900ft x 900ft => 270m x 270m ~~ 250m x 250m 
-    robot velocity : 1.3m/s 
+    robot velocity : 80.4672 metre/minute     1.3m/s 
     no. of robots  : 800
-    no. of orders  : 1.6*10^4 (1.6*10^6/100 , 1.6 million orders per day, 175 warehouses globally)
+    no. of orders  : 1.6*10^5 
     docking time   : no data 
                      taking it as 9s = 0.15minutes => d*v = 12.07, round off to 12 
 */
 
 #include<bits/stdc++.h>
 using namespace std;
+#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 template<class T>
@@ -41,12 +42,12 @@ T rand() {
 }
 
 const int max_docking_time = 12;        
-const int max_number_robots = 100;      // 800 robots can be deployed in one floor
+const int max_number_robots = 800;      // 800 robots can be deployed in one floor
 // right now taking order count as 1.6*10^4
 //  total order tha "whole" amazon receives 1.6*10^6
 // assuming at least 100 warehouses
 // will try to find data 
-const int max_number_order = 16000;   // max number of orders a warehouse shifts | 
+const int max_number_order = 160000;   // max number of orders a warehouse shifts | 
                                     // amazon gets 1.6 million orders, but a warehouse will cater smaller no. of orders
 const int max_cell_in_order = 5;
 const int max_velocity = 2;           // 1.3m/s
@@ -95,8 +96,9 @@ void out_for_test(){
 
 
 int main(){
+    FASTIO;
     freopen("input.txt", "w", stdout);
-    int test_case = 6;
+    int test_case = 3;
     cout << test_case << endl;
     while(test_case--){
         out_for_test();

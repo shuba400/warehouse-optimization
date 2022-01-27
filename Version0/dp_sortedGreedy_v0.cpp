@@ -15,6 +15,7 @@
 */
 #include<bits/stdc++.h>
 using namespace std;
+#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 
 const int inf = 1e9;
 
@@ -256,6 +257,7 @@ int cal_for_given_test(){
 }
 
 int main(){
+    FASTIO;
     freopen("input.txt","r",stdin);
     int test = 1;
     cin >> test;

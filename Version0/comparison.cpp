@@ -1,7 +1,10 @@
 #include<bits/stdc++.h>
 using namespace std;
+#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
+
 const double velocity = 80.4672; // metre per minute
 int main(){
+    FASTIO;
     vector<int> fcfs_approach,sort_approach;
     ifstream inFile1("output_bruteForce_fcfsGreedy_v0.txt"); 
     ifstream inFile2("output_bruteForce_sortedGreedy_v0.txt");

@@ -17,6 +17,7 @@
 
 #include<bits/stdc++.h>
 using namespace std;
+#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 
 const int inf = 1e9;
 
@@ -217,6 +218,7 @@ void printTestCaseDetails(){
 
 
 int main(){
+    FASTIO;
     freopen("input.txt","r",stdin);
     take_input();
     pair<int,vector<int>> p = calculate_robot_assignment();

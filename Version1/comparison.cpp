@@ -1,7 +1,9 @@
 #include<bits/stdc++.h>
 using namespace std;
+#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 const double velocity = 80.4672; // metre per minute
 int main(){
+    FASTIO;
     vector<int> randomMerge,sort_approach;
     ifstream inFile1("output_dp_randomMerge.txt"); 
     ifstream inFile2("output_dp_Sorted.txt");
