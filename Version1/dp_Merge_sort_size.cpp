@@ -152,7 +152,7 @@ void take_input(){
 
 bool compOrders(int orderIndex1,int orderIndex2)
 {
-    return allOrders[orderIndex1].time > allOrders[orderIndex2].time;
+    return allOrders[orderIndex1].cells.size() > allOrders[orderIndex2].cells.size();
 }
 
 // Returns time taken to cater all orders by all robots
