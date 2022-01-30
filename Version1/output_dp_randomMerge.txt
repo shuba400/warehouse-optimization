@@ -1,6 +1,0 @@
-Time taken to complete all orders : 
-103138
-Time taken to complete all orders : 
-103144
-Time taken to complete all orders : 
-102994

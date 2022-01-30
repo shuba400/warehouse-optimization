@@ -98,7 +98,7 @@ void out_for_test(){
 int main(){
     FASTIO;
     freopen("input.txt", "w", stdout);
-    int test_case = 3;
+    int test_case = 1;
     cout << test_case << endl;
     while(test_case--){
         out_for_test();
