@@ -77,7 +77,7 @@ private:
         dp.resize(1<<tot_number_of_element,vector<pair<int,pair<int,int>>>(tot_number_of_element,filler_value));
         dp[1][0] = {0,{-1,-1}};   //current mask = 0000001, current last cell is  0, this is basically saying that when element is at position 0 , t = 0 intially
         for(int i = 1; i < tot_number_of_element; i++){
-            pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + cells[i].x + docking_time,{(1<<tot_number_of_element) - 1,i}};
+            pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + distance(cells[0],cells[i]) + docking_time,{(1<<tot_number_of_element) - 1,i}};
             main_info = min(main_info,p);
         }
         return;
