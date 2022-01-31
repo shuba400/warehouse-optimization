@@ -1,3 +1,4 @@
+
 # Version 1
 
 ## Overview
@@ -12,17 +13,17 @@ We combine 2 order such that T(O<sub>a</sub>) + T(O<sub>b</sub>) - T(O<sub>b</su
 
 ## Our derived logic
 Lets talk about how much will be the complexity of the above code
-So we have to combine some set of order with size N ==> there will be N^2^ combination. We have to repeat this for all N orders ( (each combination changes order size from N to N - 2) ) and finding the total catered time for all orders will 2^Capacity_of_robot_C^
+So we have to combine some set of order with size N ==> there will be N<sup>2</sup> combination. We have to repeat this for all N orders ( (each combination changes order size from N to N - 2) ) and finding the total catered time for all orders will 2<sup>Capacity_of_robot_C</sup>
 
-So with tabu search Time Complexity will be N^3^C2^C^  which even for small C <= 10 is too much process time
+So with tabu search Time Complexity will be N<sup>3</sup>C2<sup>C</sup>  which even for small C <= 10 is too much process time
 
 So what we have done is sorted the orders in some manner  (First with respect to time and second with respect to capacity and then with respect to catering time) and than  greedily combined as many order as possible
-This reduced overall time complexity to O(2^C^N log(N) )
+This reduced overall time complexity to O(2<sup>C</sup>N log(N) )
 
 
 ## Psuedo Codes
 ### Small modifications from Version 0
-In version 0, catering time for given set of coordinates of size n was n!, we have used dp based TSP approach and brought it down to O(n2^n^)
+In version 0, catering time for given set of coordinates of size n was n!, we have used dp based TSP approach and brought it down to O(n2<sup>n</sup>)
 
 ### Merging Orders
 ```
