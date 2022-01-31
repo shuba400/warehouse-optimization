@@ -6,7 +6,7 @@ So we have made an algorithm to find the time taken by robots to complete orders
 This version adds a new feature of robots having a capacity C which is more than  any order size  , thus opening a possibility of merging bunch of orders then executing these orders. 
 
 ## Past Works
-From searching about how merging problem are dealt with, we came to know about the Classic Tabu Search, which runs in O(N^2^) , the working is done in following manner
+From searching about how merging problem are dealt with, we came to know about the Classic Tabu Search, which runs in O(N<sup>2</sup>) , the working is done in following manner
 Lets there are N order O, and we know time to complete each order that T(O<sub>i</sub>)
 
 We combine 2 order such that T(O<sub>a</sub>) + T(O<sub>b</sub>) - T(O<sub>b</sub>,O<sub>a</sub>) is maximum possible
