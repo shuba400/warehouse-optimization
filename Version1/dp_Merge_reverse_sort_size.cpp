@@ -128,10 +128,10 @@ void take_input(){
 
 bool compOrders(int orderIndex1,int orderIndex2)
 {
-    return allOrders[orderIndex1].time > allOrders[orderIndex2].time;
+    return allOrders[orderIndex1].cells.size() > allOrders[orderIndex2].cells.size();
 }
 
-vector<Order> merge_orders_desc_time()  // merges orders by sorting them in descending order according to catering time
+vector<Order> merge_orders_desc_size()  // merges orders by sorting them in descending order according to order size
 {
     int n = allOrders.size();
     vector<int>sortedOrders(n);  // Stores indices of orders sorted according to individual order total catering time.
@@ -162,9 +162,9 @@ vector<Order> merge_orders_desc_time()  // merges orders by sorting them in desc
 }
 
 // Returns time taken to cater all orders by all robots
-pair<int,vector<vector<int>>> caterAllOrders()
-{   
-    vector<Order> mergedOrder=merge_orders_desc_time();
+pair<int,vector<vector<int>>> caterAllOrders(){   
+
+    vector<Order> mergedOrder=merge_orders_desc_size();
 
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
@@ -215,7 +215,7 @@ int cal_for_given_test(){
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
     double velocityd = 80.4672; // metre per minute
-    cout<<"dp_Merge_reverse_sort_time:\n";
+    cout<<"dp_Merge_reverse_sort_size:\n";
     cout<<"Time taken to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<" hrs"<<"\n\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
