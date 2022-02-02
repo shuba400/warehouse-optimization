@@ -24,6 +24,7 @@ int num_of_robots;
 int num_of_orders;
 int velocity;
 int max_capacity_robot;
+int dist = 10;
 
 
 // class to store details of a single cell
@@ -31,7 +32,7 @@ struct Cell{
     int x,y; 
 
     bool operator<(const Cell &o)  const {
-        return (x < o.x) || (x == o.x && y < o.x);
+        return (x < o.x) || (x == o.x && y < o.y);
     }
 
     friend ostream& operator << (ostream &os, const Cell &m) {return os << "{" << m.x << "," << m.y << "}";}
@@ -51,7 +52,6 @@ private:
         /*
             dp[mask][l] ==> {time for current pair of mask and last value,{previous_mask,previous_last_value}}
         */ 
-        pair<int,pair<int,int>> main_info;
 
         int recur_relation(int mask,int last_element){
         if(mask == 0) return inf;
@@ -84,6 +84,7 @@ public:
     vector<Cell>cells;  // to store coordinates of each item in current order
     int time;
     vector<Cell> optimalpath;
+    pair<int,pair<int,int>> main_info;
 
     void orderSize(int szOrder){
         cells = vector<Cell>(szOrder);
@@ -122,7 +123,7 @@ public:
 };
 
 vector<Order>allOrders;  // vector containing details of all orders
-map<Cell,vector<int>> Ids; //store the ids of all the order ids[Cell(x,y)] = {x1,x2,x3} ==> any one cell of Cell(x,y) is at x1; 
+map<Cell,set<int>> Ids; //store the ids of all the order ids[Cell(x,y)] = {x1,x2,x3} ==> any one cell of Cell(x,y) is at x1; 
 
 
 void take_input(){
@@ -144,21 +145,12 @@ void take_input(){
             // x and y coordinates of items in current order
             cin >> tmp.x >> tmp.y;
             currOrder.cells.push_back(tmp);
-            Ids[tmp].push_back(i);
+            Ids[tmp].insert(i);
         }
         allOrders.push_back(currOrder);
         allOrders[i].getTime();
         allOrders[i].getPath();
     }
-    Cell tmp = {0,0};
-    pair<int,Cell> maxi = {-1,tmp};
-    pair<int,Cell> mini = {1e9,tmp};
-    for(auto &x:Ids){
-        maxi = max(maxi,{(int)x.second.size(),x.first});
-        mini = min(mini,{(int)x.second.size(),x.first});
-    }
-    cout << maxi.first << " " << maxi.second  << endl;
-    cout << mini.first << " " << mini.second  << endl;
     
 }
 
@@ -167,34 +159,82 @@ bool compOrders(int orderIndex1,int orderIndex2)
     return allOrders[orderIndex1].time > allOrders[orderIndex2].time;
 }
 
+
+
+
+void start_Merge_Operation(vector<Order> &mergedOrder){ 
+    int n = allOrders.size();
+    vector<int>sortedOrders(n);  // Stores indices of orders sorted according to individual order total catering time.
+    iota(sortedOrders.begin(),sortedOrders.end(),0);   //making sorted order = {0,1,2,3,4......}
+    sort(sortedOrders.begin(),sortedOrders.end(),compOrders);  
+    vector<int> index(n,-1);  //this will keep track of index of merge order ==> if 2 order have index[i] == index[j], then that mean they both have been merged
+    vector<int> cap;          //keeps track of total order in some merged order
+    vector<vector<int>> tr;
+    for(int &i:sortedOrders){
+        set<Cell> already_done;
+        map<int,int> freq;
+        if(index[i] == -1){            //this sees if this order was merged earlier or not, if not than start a new merging operation
+            index[i] = cap.size();
+            cap.push_back(allOrders[i].cells.size());
+            for(Cell &c:allOrders[i].cells) Ids[c].erase(i);
+        }
+        for(Cell &c:allOrders[i].cells){
+            Cell t;
+            for(int dx = -1*dist; dx <= dist; dx++){
+                int mini = -1*(dist - abs(dx));
+                int maxi = dist - abs(dx);
+                for(int dy = mini; dy <= maxi; dy++){
+                    t.x = c.x + dx;
+                    t.y = c.y + dy;
+                    if(t.x > ROWS || t.y > COLS || t.x < 0 || t.y < 0) continue;
+                    if(already_done.find(t) != already_done.end() || Ids.find(t) == Ids.end()) continue;
+                    already_done.insert(t);
+                    for(auto &new_index:Ids[t]) freq[new_index]++;
+                }
+            }
+        }
+        vector<pair<pair<double,int>,int>> close_coordi;
+        for(auto &x:freq){
+            double t1 = x.second;
+            double t2 = allOrders[x.first].cells.size();
+            close_coordi.push_back({{t1/t2,(int)allOrders[x.first].cells.size()},x.first});
+        }
+        sort(close_coordi.begin(),close_coordi.end());
+        int j = -1;
+        for(auto &t:close_coordi){
+            if(t.first.second + cap[index[i]] <= max_capacity_robot){
+                j = t.second;
+                break;
+            }
+        }   
+        if(j != -1){
+            index[j] = index[i];
+            cap[index[i]] += allOrders[j].cells.size();
+            for(auto &c:allOrders[j].cells) Ids[c].erase(j);
+        }
+    }
+    mergedOrder.clear();
+    mergedOrder.resize(cap.size());
+    tr.resize(cap.size());
+    for(int i = 0; i < mergedOrder.size(); i++){ 
+        mergedOrder[i].cells.push_back({0,0});
+    }
+    for(int i = 0; i < n; i++){
+        tr[index[i]].push_back(i);
+        for(int j = 1; j < allOrders[i].cells.size(); j++){ 
+            mergedOrder[index[i]].cells.push_back({allOrders[i].cells[j]});
+        }
+    }
+    return;
+}
+
+
 // Returns time taken to cater all orders by all robots
 pair<int,vector<vector<int>>> caterAllOrders(){   
-
-    vector<int>sortedOrders;  // Stores indices of orders sorted according to individual order total catering time.
-    for(int i=0;i<allOrders.size();i++){
-        sortedOrders.push_back(i);
-    }
-    sort(sortedOrders.begin(),sortedOrders.end(),compOrders);
     vector<Order> mergedOrder;
-    Order currSetOrder;
-    int currsum = 0; 
-    Cell c;
-    for(auto &ind:sortedOrders){
-        if(currsum + allOrders[ind].cells.size() - 1 > max_capacity_robot){
-            mergedOrder.push_back(currSetOrder);
-            currsum = 0;
-            currSetOrder = Order();
-            c.x = 0;
-            c.y = 0;
-            currSetOrder.cells.push_back(c);
-        }
-        currsum += allOrders[ind].cells.size() - 1;
-        for(int i = 1; i < allOrders[ind].cells.size(); i++){
-            currSetOrder.cells.push_back(allOrders[ind].cells[i]);
-        }
-    }
-    mergedOrder.push_back(currSetOrder);
+    start_Merge_Operation(mergedOrder);
     for(int i = 0; i < mergedOrder.size(); i++){
+        mergedOrder[i].main_info = {inf,{-1,-1}};
         mergedOrder[i].getPath();
         mergedOrder[i].getTime();
     }
@@ -231,22 +271,26 @@ pair<int,vector<vector<int>>> caterAllOrders(){
 
 
 void printTestCaseDetails(){
-    for(int i = 0 ; i < num_of_orders ; ++i){
-        int currOrderSize = allOrders[i].getOrderSize();
-        cout<<currOrderSize<<endl;
-        for(int j = 0 ; j < currOrderSize; ++j){
-            cout<<allOrders[i].cells[j].x<<" "<<allOrders[i].cells[j].y<<endl;
-        }
+    Cell tmp = {0,0};
+    pair<int,Cell> maxi = {-1,tmp};
+    pair<int,Cell> mini = {1e9,tmp};
+    for(auto &x:Ids){
+        maxi = max(maxi,{(int)x.second.size(),x.first});
+        mini = min(mini,{(int)x.second.size(),x.first});
     }
+    cout << maxi.first << " " << maxi.second << endl;
+    cout << mini.first << " " << mini.second << endl;
+    cout << Ids.size()<< endl;
 }
 
 
 void cal_for_given_test(){
     take_input();
-    // pair<int,vector<vector<int>>> cateringData = caterAllOrders();
-    // int totalTimeTaken=cateringData.first;
-    // vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
-    // cout<<"Time taken to complete all orders : \n"<<totalTimeTaken<<"\n";
+    // printTestCaseDetails();
+    pair<int,vector<vector<int>>> cateringData = caterAllOrders();
+    int totalTimeTaken=cateringData.first;
+    vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
+    cout<<"Time taken to complete all orders : \n"<<totalTimeTaken<<"\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
     // for(int i=0;i<num_of_orders;i++)
