@@ -201,40 +201,42 @@ int cal_for_given_test(){
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
-    cout<<"Time taken to complete all orders : \n"<<totalTimeTaken<<"\n";
+    double velocityd = 80.4672; // metre per minute
+    cout<<"dp_Sorted:\n";
+    cout<<"Time taken to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<" hrs"<<"\n\n";
 
-    cout<<"Each Order' s optimal cell visiting sequence:\n";
-    for(int i=0;i<num_of_orders;i++)
-    {
-        cout<<"Order "<<i<<": ";
-        for(int j=0;j<allOrders[i].optimalpath.size();j++)
-            cout<<"("<<allOrders[i].optimalpath[j].x<<","<<allOrders[i].optimalpath[j].y<<") ";
-            cout << "---->" << allOrders[i].time << endl;
-        cout<<"\n";
-    }
-    cout<<"\n";
+    // cout<<"Each Order' s optimal cell visiting sequence:\n";
+    // for(int i=0;i<num_of_orders;i++)
+    // {
+    //     cout<<"Order "<<i<<": ";
+    //     for(int j=0;j<allOrders[i].optimalpath.size();j++)
+    //         cout<<"("<<allOrders[i].optimalpath[j].x<<","<<allOrders[i].optimalpath[j].y<<") ";
+    //         cout << "---->" << allOrders[i].time << endl;
+    //     cout<<"\n";
+    // }
+    // cout<<"\n";
 
-    cout<<"Assignments of Orders to Robots:\n";
-    for(int i=0;i<num_of_robots;i++)
-    {
-        cout<<"Robot "<<i+1<<": ";
-        for(int j=0;j<robotTasks[i].size();j++)
-            cout<<robotTasks[i][j]+1<<" ";
-        cout<<"\n";
-    }
-        cout<<"Each Robot's Path:\n";
-    for(int i=0;i<num_of_robots;i++)
-    {
-        cout<<"Robot "<<i+1<<": ";
-        for(int j=0;j<robotTasks[i].size();j++)
-        {
-            cout<<"(0,0) ";
-            for(int k=0;k<allOrders[robotTasks[i][j]].optimalpath.size();k++)
-                cout<<"("<<allOrders[robotTasks[i][j]].optimalpath[k].x<<","<<allOrders[robotTasks[i][j]].optimalpath[k].y<<") ";
-        }           
-        cout<<"(0,0)"; 
-        cout<<"\n";
-    }
+    // cout<<"Assignments of Orders to Robots:\n";
+    // for(int i=0;i<num_of_robots;i++)
+    // {
+    //     cout<<"Robot "<<i+1<<": ";
+    //     for(int j=0;j<robotTasks[i].size();j++)
+    //         cout<<robotTasks[i][j]+1<<" ";
+    //     cout<<"\n";
+    // }
+    //     cout<<"Each Robot's Path:\n";
+    // for(int i=0;i<num_of_robots;i++)
+    // {
+    //     cout<<"Robot "<<i+1<<": ";
+    //     for(int j=0;j<robotTasks[i].size();j++)
+    //     {
+    //         cout<<"(0,0) ";
+    //         for(int k=0;k<allOrders[robotTasks[i][j]].optimalpath.size();k++)
+    //             cout<<"("<<allOrders[robotTasks[i][j]].optimalpath[k].x<<","<<allOrders[robotTasks[i][j]].optimalpath[k].y<<") ";
+    //     }           
+    //     cout<<"(0,0)"; 
+    //     cout<<"\n";
+    // }
     return totalTimeTaken;
 }
 
