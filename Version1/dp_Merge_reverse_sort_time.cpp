@@ -33,9 +33,12 @@ int max_capacity_robot;
 
 
 // class to store details of a single cell
-class Cell{
-    public:
-        int x,y;  
+struct Cell{
+    int x,y; 
+    bool operator<(const Cell &o)  const {
+        return (x < o.x) || (x == o.x && y < o.y);
+    }
+    friend ostream& operator << (ostream &os, const Cell &m) {return os << "{" << m.x << "," << m.y << "}";}
 };
 
 
@@ -46,83 +49,75 @@ int distance(Cell a,Cell b){
 
 
 // class to store all the details related to a single order
-class Order{
-private:
-        vector<vector<pair<int,pair<int,int>>>> dp;
-        /*
-            dp[mask][l] ==> {time for current pair of mask and last value,{previous_mask,previous_last_value}}
-        */ 
-        pair<int,pair<int,int>> main_info;
-
-        int recur_relation(int mask,int last_element){
-        if(mask == 0) return inf;
-        if(dp[mask][last_element].first != -1) return dp[mask][last_element].first;
-        dp[mask][last_element].first = inf;
-        for(int i = 0; i < cells.size(); i++){
-            if(((mask>>i)&1) == 0 || last_element == i) continue;
-            pair<int,pair<int,int>> temp = {recur_relation(mask^(1<<last_element),i) + distance(cells[i],cells[last_element]) + docking_time,{(mask^(1<<last_element)),i}};
-
-            dp[mask][last_element] = min(dp[mask][last_element],temp);
-        }
-        return dp[mask][last_element].first;
-    }
-
-    void start_recurrence(){  //used travelling salesman problem to get the minimum time needed to complete the order with given docking time.
-        time = 0;
-        int tot_number_of_element = cells.size();                          
-        pair<int,pair<int,int>> filler_value = {-1,{-1,-1}};  //used to intialize the dp states
-        dp.resize(1<<tot_number_of_element,vector<pair<int,pair<int,int>>>(tot_number_of_element,filler_value));
-        dp[1][0] = {0,{-1,-1}};   //current mask = 0000001, current last cell is  0, this is basically saying that when element is at position 0 , t = 0 intially
-        for(int i = 1; i < tot_number_of_element; i++){
-            pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + distance(cells[0],cells[i]) + docking_time,{(1<<tot_number_of_element) - 1,i}};
-            main_info = min(main_info,p);
-        }
-        return;
-    }
-
-public:
-
+struct Order{
     vector<Cell>cells;  // to store coordinates of each item in current order
-    int time;
     vector<Cell> optimalpath;
+    int time;
+    bool dp_done;
 
-    void orderSize(int szOrder){
-        cells = vector<Cell>(szOrder);
+    Order(){   
+        dp_done = 0;
+        time = 0;
     }
 
-    Order(){  
-        main_info = {inf,{-1,-1}};
-    }
-
-    int getTime(){
-        if(dp.empty()) start_recurrence();
-        time = main_info.first;
-        return time;
-    }
-
-    vector<Cell> getPath(){
-        if(!optimalpath.empty()) return optimalpath;
-        if(dp.empty()) start_recurrence();
-        int main_mask = main_info.second.first;
-        int last_element = main_info.second.second;
-        while(last_element > -1){
-            optimalpath.push_back(cells[last_element]);
-            int new_last_element = dp[main_mask][last_element].second.second;
-            int new_main_mask = dp[main_mask][last_element].second.first;
-            last_element = new_last_element;
-            main_mask = new_main_mask;
-        }
-        optimalpath.pop_back();
-        reverse(optimalpath.begin(),optimalpath.end());
-        return optimalpath;
-    }
-    
     int getOrderSize(){
-        return cells.size();
+        return cells.size() - 1;
     }
 };
 
 vector<Order>allOrders;  // vector containing details of all orders
+
+
+//This part calculate TSP, DO NOT TOUCH
+vector<vector<pair<int,pair<int,int>>>> dp;
+pair<int,pair<int,int>> main_info;
+vector<Cell> dp_cells;
+int recur_relation(int mask,int last_element){
+    if(mask == 0) return inf;
+    if(dp[mask][last_element].first != -1) return dp[mask][last_element].first;
+    dp[mask][last_element].first = inf;
+    for(int i = 0; i < dp_cells.size(); i++){
+        if(((mask>>i)&1) == 0 || last_element == i) continue;
+        pair<int,pair<int,int>> temp = {recur_relation(mask^(1<<last_element),i) + distance(dp_cells[i],dp_cells[last_element]) + docking_time,{(mask^(1<<last_element)),i}};
+
+        dp[mask][last_element] = min(dp[mask][last_element],temp);
+    }
+    return dp[mask][last_element].first;
+}
+
+void start_recurrence(Order &o){
+    dp_cells.clear();
+    dp.clear();
+    main_info = {inf,{-1,-1}};
+
+    for(auto &x:o.cells) dp_cells.push_back(x);
+    int tot_number_of_element = dp_cells.size();                          
+    pair<int,pair<int,int>> filler_value = {-1,{-1,-1}};  //used to intialize the dp states
+    dp.resize(1<<tot_number_of_element,vector<pair<int,pair<int,int>>>(tot_number_of_element,filler_value));
+    dp[1][0] = {0,{-1,-1}};   //current mask = 0000001, current last cell is  0, this is basically saying that when element is at position 0 , t = 0 intially
+    for(int i = 1; i < tot_number_of_element; i++){
+        pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + distance(dp_cells[0],dp_cells[i]) + docking_time,{(1<<tot_number_of_element) - 1,i}};
+        main_info = min(main_info,p);
+    }
+    o.time = main_info.first;
+    int main_mask = main_info.second.first;
+    int last_element = main_info.second.second;
+    while(last_element > -1){
+        o.optimalpath.push_back(dp_cells[last_element]);
+        int new_last_element = dp[main_mask][last_element].second.second;
+        int new_main_mask = dp[main_mask][last_element].second.first;
+        last_element = new_last_element;
+        main_mask = new_main_mask;
+    }
+    o.optimalpath.pop_back();
+    reverse(o.optimalpath.begin(),o.optimalpath.end());
+    return;
+}
+
+//End of DO NOT TOUCH PART
+
+
+
 
 void take_input(){
 
@@ -145,8 +140,7 @@ void take_input(){
             currOrder.cells.push_back(tmp);
         }
         allOrders.push_back(currOrder);
-        allOrders[i].getTime();
-        allOrders[i].getPath();
+        start_recurrence(allOrders[i]);
     }
 }
 
@@ -167,24 +161,32 @@ pair<int,vector<vector<int>>> caterAllOrders(){
     Order currSetOrder;
     int currsum = 0; 
     Cell c;
+    c.x = 0;
+    c.y = 0;
+    currSetOrder.cells.push_back(c);
+    vector<vector<int>> tt;
+    vector<int> tr;
     for(auto &ind:sortedOrders){
         if(currsum + allOrders[ind].cells.size() - 1 > max_capacity_robot){
             mergedOrder.push_back(currSetOrder);
+            tt.push_back(tr);
             currsum = 0;
             currSetOrder = Order();
+            tr.clear();
             c.x = 0;
             c.y = 0;
             currSetOrder.cells.push_back(c);
         }
+        tr.push_back(ind);
         currsum += allOrders[ind].cells.size() - 1;
         for(int i = 1; i < allOrders[ind].cells.size(); i++){
             currSetOrder.cells.push_back(allOrders[ind].cells[i]);
         }
     }
     mergedOrder.push_back(currSetOrder);
+    tt.push_back(tr);
     for(int i = 0; i < mergedOrder.size(); i++){
-        mergedOrder[i].getPath();
-        mergedOrder[i].getTime();
+        start_recurrence(mergedOrder[i]);
     }
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
