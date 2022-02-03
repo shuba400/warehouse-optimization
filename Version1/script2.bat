@@ -5,6 +5,9 @@ testcasegenerator
 g++ dp_Merge_reverse_sort_time.cpp -o dp_Merge_reverse_sort_time
 dp_Merge_reverse_sort_time
 
+g++ dp_merge_greedy_size.cpp -o dp_merge_greedy_size
+dp_merge_greedy_size
+
 g++ geo_sampling_new.cpp -o geo_sampling_new
 geo_sampling_new
 

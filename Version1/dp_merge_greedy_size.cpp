@@ -107,7 +107,6 @@ void start_recurrence(Order &o){
 //End of DO NOT TOUCH PART
 
 vector<Order>allOrders;  // vector containing details of all orders
-vector<vector<vector<int>>>L;
 
 void take_input(){
 
@@ -116,7 +115,6 @@ void take_input(){
     cin>>num_of_robots>>num_of_orders;
     allOrders.clear();
     vector<int>tempv;
-    L.assign(ROWS+1,vector<vector<int>>(COLS+1,tempv));
     for(int i = 0 ; i < num_of_orders;++i){
 
         int currOrderSize;
@@ -130,7 +128,6 @@ void take_input(){
             // x and y coordinates of items in current order
             cin >> tmp.x >> tmp.y;
             currOrder.cells.push_back(tmp);
-            L[tmp.x][tmp.y].push_back(i);
         }
         allOrders.push_back(currOrder);
         start_recurrence(allOrders[i]);
@@ -170,107 +167,6 @@ void dsu_merge(int o1,int o2,vector<int>&orderParent,vector<Order>&orderList)
         swap(rooto1,rooto2);
     orderParent[rooto2]=rooto1;
     orderList[rooto1]=mergeTwoOrders(orderList[rooto1],orderList[rooto2]);
-}
-
-vector<Order> geoMergeOrders(vector<Order>orderList)
-{
-    int n=orderList.size();
-    vector<int>orderParent(n);
-    iota(orderParent.begin(),orderParent.end(),0);
-    vector<vector<int>>isNeighbour(ROWS+1,vector<int>(COLS+1,0));
-    for(int i=0;i<n;i++)
-    {
-        if(dsu_find(i,orderParent)!=i)
-            continue;
-        while(1)
-        {
-            int curOrderIndex=dsu_find(i,orderParent);
-            vector<pair<int,int>>neighbours;
-            for(int j=1;j<orderList[curOrderIndex].cells.size();j++)
-            {
-                Cell cell=orderList[curOrderIndex].cells[j];
-                for(int dx=-distanceThreshold;dx<=distanceThreshold;dx++)
-                {
-                    for(int dy=-distanceThreshold;dy<=distanceThreshold;dy++)
-                    {
-                        int nx=cell.x+dx;
-                        int ny=cell.y+dy;
-                        if(nx<1||nx>ROWS||ny<1||ny>COLS)
-                            continue;                    
-                        if(isNeighbour[nx][ny]!=0)
-                            continue;
-                        isNeighbour[nx][ny]=1;
-                        neighbours.push_back({nx,ny});
-                    }
-                }
-            }
-            unordered_map<int,int>freq;
-            for(auto &neighbour:neighbours)
-            {
-                for(auto &neighbourOrderIndex:L[neighbour.first][neighbour.second])
-                    freq[dsu_find(neighbourOrderIndex,orderParent)]++;
-                isNeighbour[neighbour.first][neighbour.second]=0;
-            }
-            if(freq.find(dsu_find(curOrderIndex,orderParent))!=freq.end())
-                freq.erase(dsu_find(curOrderIndex,orderParent));
-            int bestPartnerOrderIndex=-1;
-            double bestOverlapRatio=0.0;
-            for(auto &it:freq)
-            {
-                int neighbourOrderIndex=it.first;
-                int neighbourOrderSize=orderList[neighbourOrderIndex].getOrderSize();
-                if(neighbourOrderSize+orderList[curOrderIndex].getOrderSize()>max_capacity_robot)
-                    continue;
-                double overlapRatio=(it.second*1.0)/neighbourOrderSize;
-                if(overlapRatio<overlapThreshold)
-                    continue;
-                if(overlapRatio>bestOverlapRatio)
-                {
-                    bestOverlapRatio=overlapRatio;
-                    bestPartnerOrderIndex=neighbourOrderIndex;
-                }
-            }
-            if(bestPartnerOrderIndex==-1)
-                break;
-            dsu_merge(curOrderIndex,bestPartnerOrderIndex,orderParent,orderList);
-        }        
-    }
-    vector<Order>mergedOrders;
-    for(int i=0;i<n;i++)
-    {
-        if(dsu_find(i,orderParent)==i)
-            mergedOrders.push_back(orderList[i]);
-    }
-    return mergedOrders;
-}
-
-vector<Order> greedyMergeOrdersDescTime(vector<Order>orderList)  // merges orders by sorting them in descending order according to catering time
-{
-    int n=orderList.size();    
-    for(int i=0;i<n;i++)
-        start_recurrence(orderList[i]);
-    sort(orderList.begin(),orderList.end(),compOrdersDescTime);
-
-    vector<Order>mergedOrders;
-    Order currSetOrder;
-    int currsum=0; 
-    Cell c;
-    for(int i=0;i<n;i++)
-    {
-        if(currsum+orderList[i].getOrderSize()>max_capacity_robot)
-        {
-            mergedOrders.push_back(currSetOrder);
-            currsum=0;
-            currSetOrder=Order();
-            c.x=0;
-            c.y=0;
-            currSetOrder.cells.push_back(c);
-        }
-        currsum+=orderList[i].getOrderSize();
-        currSetOrder=mergeTwoOrders(currSetOrder,orderList[i]);
-    }
-    mergedOrders.push_back(currSetOrder);
-    return mergedOrders;
 }
 
 // Iterates over all orders and greedily merges the largest possible order into current order
@@ -328,8 +224,6 @@ pair<int,vector<vector<int>>> caterAllOrders()
 {   
     vector<Order>mergedOrders=allOrders;
     cout<<"Number of Orders (Initially) : \n"<<mergedOrders.size()<<"\n";
-    mergedOrders=geoMergeOrders(mergedOrders);
-    cout<<"Number of Orders (After Geo_Merging) : \n"<<mergedOrders.size()<<"\n";
     mergedOrders=greedyMergeOrdersSize(mergedOrders);
     cout<<"Number of Orders (After Greedy_Merging_Size) : \n"<<mergedOrders.size()<<"\n";
 
@@ -376,7 +270,7 @@ void printTestCaseDetails(){
 void cal_for_given_test(){
     take_input();
     
-    cout<<"----geo_sampling_new:----\n";
+    cout<<"----dp_merge_greedy_size:----\n";
     clock_t tStart=clock();
 
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
