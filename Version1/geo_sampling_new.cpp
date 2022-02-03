@@ -15,6 +15,7 @@
 */
 #include<bits/stdc++.h>
 using namespace std;
+#include<time.h>
 #define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 const int inf = 1e9;
 
@@ -24,8 +25,9 @@ int num_of_robots;
 int num_of_orders;
 int velocity;
 int max_capacity_robot;
+
 int distanceThreshold=5;    
-const double overlapThreshold=0.7;
+double overlapThreshold=0.7;
 
 // class to store details of a single cell
 struct Cell{
@@ -135,6 +137,18 @@ void take_input(){
     }    
 }
 
+bool compOrdersDescTime(Order &order1,Order &order2)
+{
+    return order1.time>order2.time;
+}
+
+Order mergeTwoOrders(Order &order1,Order &order2)  //Adds all cells from order2 to order1 
+{
+    for(int i=1;i<order2.cells.size();i++)
+        order1.cells.push_back(order2.cells[i]);
+    return order1;
+}
+
 int dsu_find(int o1,vector<int>&orderParent)
 {
     if(orderParent[o1]==o1)
@@ -150,8 +164,7 @@ void dsu_merge(int o1,int o2,vector<int>&orderParent,vector<Order>&orderList)
     if(orderList[rooto1].getOrderSize()<orderList[rooto2].getOrderSize())
         swap(rooto1,rooto2);
     orderParent[rooto2]=rooto1;
-    for(int i=1;i<orderList[rooto2].cells.size();i++)
-        orderList[rooto1].cells.push_back(orderList[rooto2].cells[i]);
+    orderList[rooto1]=mergeTwoOrders(orderList[rooto1],orderList[rooto2]);
 }
 
 vector<Order> geoMergeOrders(vector<Order>orderList)
@@ -164,54 +177,58 @@ vector<Order> geoMergeOrders(vector<Order>orderList)
     {
         if(dsu_find(i,orderParent)!=i)
             continue;
-        vector<pair<int,int>>neighbours;
-        for(int j=1;j<orderList[i].cells.size();j++)
+        while(1)
         {
-            Cell cell=orderList[i].cells[j];
-            for(int dx=-distanceThreshold;dx<=distanceThreshold;dx++)
+            int curOrderIndex=dsu_find(i,orderParent);
+            vector<pair<int,int>>neighbours;
+            for(int j=1;j<orderList[curOrderIndex].cells.size();j++)
             {
-                for(int dy=-distanceThreshold;dy<=distanceThreshold;dy++)
+                Cell cell=orderList[curOrderIndex].cells[j];
+                for(int dx=-distanceThreshold;dx<=distanceThreshold;dx++)
                 {
-                    int nx=cell.x+dx;
-                    int ny=cell.y+dy;
-                    if(nx<1||nx>ROWS||ny<1||ny>COLS)
-                        continue;                    
-                    if(isNeighbour[nx][ny]!=0)
-                        continue;
-                    isNeighbour[nx][ny]=1;
-                    neighbours.push_back({nx,ny});
+                    for(int dy=-distanceThreshold;dy<=distanceThreshold;dy++)
+                    {
+                        int nx=cell.x+dx;
+                        int ny=cell.y+dy;
+                        if(nx<1||nx>ROWS||ny<1||ny>COLS)
+                            continue;                    
+                        if(isNeighbour[nx][ny]!=0)
+                            continue;
+                        isNeighbour[nx][ny]=1;
+                        neighbours.push_back({nx,ny});
+                    }
                 }
             }
-        }
-        unordered_map<int,int>freq;
-        for(auto &neighbour:neighbours)
-        {
-            for(auto &orderIndex:L[neighbour.first][neighbour.second])
-                freq[dsu_find(orderIndex,orderParent)]++;
-            isNeighbour[neighbour.first][neighbour.second]=0;
-        }
-        if(freq.find(i)!=freq.end())
-            freq.erase(i);
-        int bestPartnerOrderIndex=-1;
-        double bestOverlapRatio=0.0;
-        for(auto &it:freq)
-        {
-            int orderIndex=it.first;
-            int orderSize=orderList[orderIndex].getOrderSize();
-            if(orderSize+orderList[i].getOrderSize()>max_capacity_robot)
-                continue;
-            double overlapRatio=(it.second*1.0)/orderList[orderIndex].getOrderSize();
-            if(overlapRatio<overlapThreshold)
-                continue;
-            if(overlapRatio>bestOverlapRatio)
+            unordered_map<int,int>freq;
+            for(auto &neighbour:neighbours)
             {
-                bestOverlapRatio=overlapRatio;
-                bestPartnerOrderIndex=orderIndex;
+                for(auto &neighbourOrderIndex:L[neighbour.first][neighbour.second])
+                    freq[dsu_find(neighbourOrderIndex,orderParent)]++;
+                isNeighbour[neighbour.first][neighbour.second]=0;
             }
-        }
-        if(bestPartnerOrderIndex==-1)
-            continue;
-        dsu_merge(i,bestPartnerOrderIndex,orderParent,orderList);
+            if(freq.find(dsu_find(curOrderIndex,orderParent))!=freq.end())
+                freq.erase(dsu_find(curOrderIndex,orderParent));
+            int bestPartnerOrderIndex=-1;
+            double bestOverlapRatio=0.0;
+            for(auto &it:freq)
+            {
+                int neighbourOrderIndex=it.first;
+                int neighbourOrderSize=orderList[neighbourOrderIndex].getOrderSize();
+                if(neighbourOrderSize+orderList[curOrderIndex].getOrderSize()>max_capacity_robot)
+                    continue;
+                double overlapRatio=(it.second*1.0)/neighbourOrderSize;
+                if(overlapRatio<overlapThreshold)
+                    continue;
+                if(overlapRatio>bestOverlapRatio)
+                {
+                    bestOverlapRatio=overlapRatio;
+                    bestPartnerOrderIndex=neighbourOrderIndex;
+                }
+            }
+            if(bestPartnerOrderIndex==-1)
+                break;
+            dsu_merge(curOrderIndex,bestPartnerOrderIndex,orderParent,orderList);
+        }        
     }
     vector<Order>mergedOrders;
     for(int i=0;i<n;i++)
@@ -222,20 +239,48 @@ vector<Order> geoMergeOrders(vector<Order>orderList)
     return mergedOrders;
 }
 
-bool compOrders(Order &order1,Order &order2)
+vector<Order> greedyMergeOrdersDescTime(vector<Order>orderList)  // merges orders by sorting them in descending order according to catering time
 {
-    return order1.time>order2.time;
+    int n=orderList.size();    
+    for(int i=0;i<n;i++)
+        start_recurrence(orderList[i]);
+    sort(orderList.begin(),orderList.end(),compOrdersDescTime);
+
+    vector<Order>mergedOrders;
+    Order currSetOrder;
+    int currsum=0; 
+    Cell c;
+    for(int i=0;i<n;i++)
+    {
+        if(currsum+orderList[i].getOrderSize()>max_capacity_robot)
+        {
+            mergedOrders.push_back(currSetOrder);
+            currsum=0;
+            currSetOrder=Order();
+            c.x=0;
+            c.y=0;
+            currSetOrder.cells.push_back(c);
+        }
+        currsum+=orderList[i].getOrderSize();
+        currSetOrder=mergeTwoOrders(currSetOrder,orderList[i]);
+    }
+    mergedOrders.push_back(currSetOrder);
+    return mergedOrders;
 }
 
 // Returns time taken to cater all orders by all robots
 pair<int,vector<vector<int>>> caterAllOrders()
 {   
     vector<Order>mergedOrders=allOrders;
+    cout<<"Number of Orders (Initially) : \n"<<mergedOrders.size()<<"\n";
     mergedOrders=geoMergeOrders(mergedOrders);
+    cout<<"Number of Orders (After Geo_Merging) : \n"<<mergedOrders.size()<<"\n";
+    mergedOrders=greedyMergeOrdersDescTime(mergedOrders);
+    cout<<"Number of Orders (After Greedy_Merging_DESC_Time) : \n"<<mergedOrders.size()<<"\n";
 
     for(int i = 0; i < mergedOrders.size(); i++)
         start_recurrence(mergedOrders[i]);
-    sort(mergedOrders.begin(),mergedOrders.end(),compOrders);
+    sort(mergedOrders.begin(),mergedOrders.end(),compOrdersDescTime);
 
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
@@ -275,13 +320,19 @@ void printTestCaseDetails(){
 
 void cal_for_given_test(){
     take_input();
-    // printTestCaseDetails();
+    
+    cout<<"----geo_sampling_new:----\n";
+    clock_t tStart=clock();
+
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
+
+    double exec_time=(double)(clock()-tStart)/CLOCKS_PER_SEC;
+    
     double velocityd = 80.4672; // metre per minute
-    cout<<"geo_sampling_new:\n";
-    cout<<"Time taken (in hrs) to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
+    cout<<"Code Execution Time (in min) : \n"<<exec_time/60<<"\n";
+    cout<<"Total Catering Time (in hrs) : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
     // for(int i=0;i<num_of_orders;i++)

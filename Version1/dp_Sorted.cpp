@@ -15,6 +15,7 @@
 */
 #include<bits/stdc++.h>
 using namespace std;
+#include<time.h>
 #define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 
 const int inf = 1e9;
@@ -198,12 +199,19 @@ void take_input(){
 
 int cal_for_given_test(){
     take_input();
+
+    cout<<"----dp_Sorted:----\n";
+    clock_t tStart=clock();
+
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
+
+    double exec_time=(double)(clock()-tStart)/CLOCKS_PER_SEC;
+
     double velocityd = 80.4672; // metre per minute
-    cout<<"dp_Sorted:\n";
-    cout<<"Time taken (in hrs) to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
+    cout<<"Code Execution Time (in min) : \n"<<exec_time/60<<"\n";
+    cout<<"Total Catering Time (in hrs) : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
     // for(int i=0;i<num_of_orders;i++)

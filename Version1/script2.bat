@@ -8,11 +8,11 @@ dp_Merge_reverse_sort_time
 g++ geo_sampling_new.cpp -o geo_sampling_new
 geo_sampling_new
 
+g++ dp_Sorted.cpp -o dp_Sorted
+dp_Sorted
+
 @REM g++ geo_sampling.cpp -o geo_sampling
 @REM geo_sampling
-
-@REM g++ dp_Sorted.cpp -o dp_Sorted
-@REM dp_Sorted
 
 @REM g++ dp_Merge_sort_time.cpp -o dp_Merge_sort_time
 @REM dp_Merge_sort_time

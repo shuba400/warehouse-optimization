@@ -15,6 +15,7 @@
 */
 #include<bits/stdc++.h>
 using namespace std;
+#include<time.h>
 #define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
 const int inf = 1e9;
 
@@ -164,7 +165,9 @@ vector<Order> merge_orders_desc_time()  // merges orders by sorting them in desc
 // Returns time taken to cater all orders by all robots
 pair<int,vector<vector<int>>> caterAllOrders()
 {   
-    vector<Order> mergedOrder=merge_orders_desc_time();
+    cout<<"Number of Orders (Initially) : \n"<<allOrders.size()<<"\n";
+    vector<Order> mergedOrders=merge_orders_desc_time();
+    cout<<"Number of Orders (After Greedy_Merging_DESC_Time) : \n"<<mergedOrders.size()<<"\n";
 
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
@@ -179,7 +182,7 @@ pair<int,vector<vector<int>>> caterAllOrders()
 
     // cater all the order one by one
     // allot the earliest free robot to current order
-    for(int i = 0 ; i < mergedOrder.size() ; ++i){
+    for(int i = 0 ; i < mergedOrders.size() ; ++i){
         // pick the earliest free robot 
         int earliestFreeRobot=robotFreeTimes.top().second;
         int freeTime=robotFreeTimes.top().first;
@@ -187,7 +190,7 @@ pair<int,vector<vector<int>>> caterAllOrders()
         robotTasks[earliestFreeRobot].push_back(0);
 
         // assign ith task to that robot
-        int cateringTime = mergedOrder[i].time;
+        int cateringTime = mergedOrders[i].time;
         int finishTime = freeTime + cateringTime;
         totalTime = max(totalTime,finishTime);
 
@@ -211,12 +214,19 @@ void printTestCaseDetails(){
 
 int cal_for_given_test(){
     take_input();
+
+    cout<<"----dp_Merge_reverse_sort_time:----\n";
+    clock_t tStart=clock();
+
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
+
+    double exec_time=(double)(clock()-tStart)/CLOCKS_PER_SEC;
+
     double velocityd = 80.4672; // metre per minute
-    cout<<"dp_Merge_reverse_sort_time:\n";
-    cout<<"Time taken (in hrs) to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
+    cout<<"Code Execution Time (in min) : \n"<<exec_time/60<<"\n";
+    cout<<"Total Catering Time (in hrs) : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
     // for(int i=0;i<num_of_orders;i++)
