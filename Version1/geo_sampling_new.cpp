@@ -16,7 +16,6 @@
 #include<bits/stdc++.h>
 using namespace std;
 #define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
-
 const int inf = 1e9;
 
 int ROWS,COLS;
@@ -25,8 +24,8 @@ int num_of_robots;
 int num_of_orders;
 int velocity;
 int max_capacity_robot;
-
-
+int distanceThreshold=5;    
+const double overlapThreshold=0.7;
 
 // class to store details of a single cell
 struct Cell{
@@ -37,22 +36,17 @@ struct Cell{
     friend ostream& operator << (ostream &os, const Cell &m) {return os << "{" << m.x << "," << m.y << "}";}
 };
 
-
-
 int distance(Cell a,Cell b){
     return abs(a.x - b.x) + abs(a.y - b.y);
 }
-
 
 // class to store all the details related to a single order
 struct Order{
     vector<Cell>cells;  // to store coordinates of each item in current order
     vector<Cell> optimalpath;
     int time;
-    bool dp_done;
 
     Order(){   
-        dp_done = 0;
         time = 0;
     }
 
@@ -60,11 +54,6 @@ struct Order{
         return cells.size() - 1;
     }
 };
-
-vector<Order>allOrders;  // vector containing details of all orders
-
-
-
 
 //This part calculate TSP, DO NOT TOUCH
 vector<vector<pair<int,pair<int,int>>>> dp;
@@ -86,6 +75,8 @@ int recur_relation(int mask,int last_element){
 void start_recurrence(Order &o){
     dp_cells.clear();
     dp.clear();
+    o.optimalpath.clear();
+    o.time=0;
     main_info = {inf,{-1,-1}};
 
     for(auto &x:o.cells) dp_cells.push_back(x);
@@ -111,23 +102,140 @@ void start_recurrence(Order &o){
     reverse(o.optimalpath.begin(),o.optimalpath.end());
     return;
 }
-
 //End of DO NOT TOUCH PART
 
+vector<Order>allOrders;  // vector containing details of all orders
+vector<vector<vector<int>>>L;
 
-bool compOrders(int orderIndex1,int orderIndex2)
+void take_input(){
+
+    cin>>ROWS>>COLS;
+    cin>>docking_time>>velocity >> max_capacity_robot;
+    cin>>num_of_robots>>num_of_orders;
+    allOrders.clear();
+    vector<int>tempv;
+    L.assign(ROWS+1,vector<vector<int>>(COLS+1,tempv));
+    for(int i = 0 ; i < num_of_orders;++i){
+
+        int currOrderSize;
+        cin>>currOrderSize;
+        Order currOrder = Order();   //this will be the main human cell, for now I am assuming this is 0,0
+        Cell tmp;
+        tmp.x = 0;
+        tmp.y = 0;
+        currOrder.cells.push_back(tmp);
+        for(int j = 0 ; j < currOrderSize ; ++j){
+            // x and y coordinates of items in current order
+            cin >> tmp.x >> tmp.y;
+            currOrder.cells.push_back(tmp);
+            L[tmp.x][tmp.y].push_back(i);
+        }
+        allOrders.push_back(currOrder);
+        start_recurrence(allOrders[i]);
+    }    
+}
+
+int dsu_find(int o1,vector<int>&orderParent)
 {
-    return allOrders[orderIndex1].time > allOrders[orderIndex2].time;
+    if(orderParent[o1]==o1)
+        return o1;
+    return orderParent[o1]=dsu_find(orderParent[o1],orderParent);
+}
+void dsu_merge(int o1,int o2,vector<int>&orderParent,vector<Order>&orderList)
+{
+    int rooto1=dsu_find(o1,orderParent);
+    int rooto2=dsu_find(o2,orderParent);
+    if(rooto1==rooto2)
+        return;
+    if(orderList[rooto1].getOrderSize()<orderList[rooto2].getOrderSize())
+        swap(rooto1,rooto2);
+    orderParent[rooto2]=rooto1;
+    for(int i=1;i<orderList[rooto2].cells.size();i++)
+        orderList[rooto1].cells.push_back(orderList[rooto2].cells[i]);
+}
+
+vector<Order> geoMergeOrders(vector<Order>orderList)
+{
+    int n=orderList.size();
+    vector<int>orderParent(n);
+    iota(orderParent.begin(),orderParent.end(),0);
+    vector<vector<int>>isNeighbour(ROWS+1,vector<int>(COLS+1,0));
+    for(int i=0;i<n;i++)
+    {
+        if(dsu_find(i,orderParent)!=i)
+            continue;
+        vector<pair<int,int>>neighbours;
+        for(int j=1;j<orderList[i].cells.size();j++)
+        {
+            Cell cell=orderList[i].cells[j];
+            for(int dx=-distanceThreshold;dx<=distanceThreshold;dx++)
+            {
+                for(int dy=-distanceThreshold;dy<=distanceThreshold;dy++)
+                {
+                    int nx=cell.x+dx;
+                    int ny=cell.y+dy;
+                    if(nx<1||nx>ROWS||ny<1||ny>COLS)
+                        continue;                    
+                    if(isNeighbour[nx][ny]!=0)
+                        continue;
+                    isNeighbour[nx][ny]=1;
+                    neighbours.push_back({nx,ny});
+                }
+            }
+        }
+        unordered_map<int,int>freq;
+        for(auto &neighbour:neighbours)
+        {
+            for(auto &orderIndex:L[neighbour.first][neighbour.second])
+                freq[dsu_find(orderIndex,orderParent)]++;
+            isNeighbour[neighbour.first][neighbour.second]=0;
+        }
+        if(freq.find(i)!=freq.end())
+            freq.erase(i);
+        int bestPartnerOrderIndex=-1;
+        double bestOverlapRatio=0.0;
+        for(auto &it:freq)
+        {
+            int orderIndex=it.first;
+            int orderSize=orderList[orderIndex].getOrderSize();
+            if(orderSize+orderList[i].getOrderSize()>max_capacity_robot)
+                continue;
+            double overlapRatio=(it.second*1.0)/orderList[orderIndex].getOrderSize();
+            if(overlapRatio<overlapThreshold)
+                continue;
+            if(overlapRatio>bestOverlapRatio)
+            {
+                bestOverlapRatio=overlapRatio;
+                bestPartnerOrderIndex=orderIndex;
+            }
+        }
+        if(bestPartnerOrderIndex==-1)
+            continue;
+        dsu_merge(i,bestPartnerOrderIndex,orderParent,orderList);
+    }
+    vector<Order>mergedOrders;
+    for(int i=0;i<n;i++)
+    {
+        if(dsu_find(i,orderParent)==i)
+            mergedOrders.push_back(orderList[i]);
+    }
+    return mergedOrders;
+}
+
+bool compOrders(Order &order1,Order &order2)
+{
+    return order1.time>order2.time;
 }
 
 // Returns time taken to cater all orders by all robots
-pair<int,vector<vector<int>>> caterAllOrders(){   
+pair<int,vector<vector<int>>> caterAllOrders()
+{   
+    vector<Order>mergedOrders=allOrders;
+    mergedOrders=geoMergeOrders(mergedOrders);
 
-    vector<int>sortedOrders;  // Stores indices of orders sorted according to individual order total catering time.
-    for(int i=0;i<allOrders.size();i++){
-        sortedOrders.push_back(i);
-    }
-    sort(sortedOrders.begin(),sortedOrders.end(),compOrders);
+    for(int i = 0; i < mergedOrders.size(); i++)
+        start_recurrence(mergedOrders[i]);
+    sort(mergedOrders.begin(),mergedOrders.end(),compOrders);
 
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
@@ -142,15 +250,15 @@ pair<int,vector<vector<int>>> caterAllOrders(){
 
     // cater all the order one by one
     // allot the earliest free robot to current order
-    for(int i = 0 ; i < num_of_orders ; ++i){
+    for(int i = 0 ; i < mergedOrders.size() ; ++i){
         // pick the earliest free robot 
         int earliestFreeRobot=robotFreeTimes.top().second;
         int freeTime=robotFreeTimes.top().first;
         robotFreeTimes.pop();
-        robotTasks[earliestFreeRobot].push_back(sortedOrders[i]);
+        robotTasks[earliestFreeRobot].push_back(0);
 
         // assign ith task to that robot
-        int cateringTime = allOrders[sortedOrders[i]].time;
+        int cateringTime = mergedOrders[i].time;
         int finishTime = freeTime + cateringTime;
         totalTime = max(totalTime,finishTime);
 
@@ -162,47 +270,17 @@ pair<int,vector<vector<int>>> caterAllOrders(){
 
 
 void printTestCaseDetails(){
-    for(int i = 0 ; i < num_of_orders ; ++i){
-        int currOrderSize = allOrders[i].cells.size();
-        cout<<currOrderSize<<endl;
-        for(auto &x:allOrders[i].cells) cout << x << " ";
-        cout << endl; 
-    }
 }
 
 
-void take_input(){
-
-    cin>>ROWS>>COLS;
-    cin>>docking_time>>velocity >> max_capacity_robot;
-    cin>>num_of_robots>>num_of_orders;
-    allOrders.clear();
-    for(int i = 0 ; i < num_of_orders;++i){
-
-        int currOrderSize;
-        cin>>currOrderSize;
-        Order currOrder = Order();   //this will be the main human cell, for now I am assuming this is 0,0
-        Cell tmp;
-        tmp.x = 0;
-        tmp.y = 0;
-        currOrder.cells.push_back(tmp);
-        for(int j = 0 ; j < currOrderSize ; ++j){
-            // x and y coordinates of items in current order
-            cin >> tmp.x >> tmp.y;
-            currOrder.cells.push_back(tmp);
-        }
-        allOrders.push_back(currOrder);
-        start_recurrence(allOrders[i]);
-    }
-}
-
-int cal_for_given_test(){
+void cal_for_given_test(){
     take_input();
+    // printTestCaseDetails();
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
     double velocityd = 80.4672; // metre per minute
-    cout<<"dp_Sorted:\n";
+    cout<<"geo_sampling_new:\n";
     cout<<"Time taken (in hrs) to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
@@ -237,10 +315,11 @@ int cal_for_given_test(){
     //     cout<<"(0,0)"; 
     //     cout<<"\n";
     // }
-    return totalTimeTaken;
+    return;
 }
 
 int main(){
+    FASTIO;
     freopen("input.txt","r",stdin);
     int test = 1;
     cin >> test;

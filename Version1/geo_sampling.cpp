@@ -276,7 +276,9 @@ void cal_for_given_test(){
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
     int totalTimeTaken=cateringData.first;
     vector<vector<int>>robotTasks=cateringData.second; // For each robot, it stores which orders will be catered by that robot
-    cout<<"Time taken to complete all orders : \n"<<totalTimeTaken<<"\n";
+    double velocityd = 80.4672; // metre per minute
+    cout<<"geo_sampling:\n";
+    cout<<"Time taken (in hrs) to complete all orders : \n"<<((totalTimeTaken*1.0)/velocityd)/60<<"\n\n";
 
     // cout<<"Each Order' s optimal cell visiting sequence:\n";
     // for(int i=0;i<num_of_orders;i++)
