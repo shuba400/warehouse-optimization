@@ -130,7 +130,6 @@ void take_input(){
             currOrder.cells.push_back(tmp);
         }
         allOrders.push_back(currOrder);
-        start_recurrence(allOrders[i]);
     }    
 }
 

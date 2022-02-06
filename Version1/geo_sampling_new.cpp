@@ -27,7 +27,7 @@ int velocity;
 int max_capacity_robot;
 
 int distanceThreshold=5;    
-double overlapThreshold=0.7;
+int overlapThreshold=20;
 
 // class to store details of a single cell
 struct Cell{
@@ -47,11 +47,9 @@ struct Order{
     vector<Cell>cells;  // to store coordinates of each item in current order
     vector<Cell> optimalpath;
     int time;
-
     Order(){   
         time = 0;
     }
-
     int getOrderSize(){
         return cells.size() - 1;
     }
@@ -133,7 +131,6 @@ void take_input(){
             L[tmp.x][tmp.y].push_back(i);
         }
         allOrders.push_back(currOrder);
-        start_recurrence(allOrders[i]);
     }    
 }
 
@@ -141,7 +138,6 @@ bool compOrdersDescSize(Order &order1,Order &order2)
 {
     return order1.getOrderSize()>order2.getOrderSize();
 }
-
 bool compOrdersDescTime(Order &order1,Order &order2)
 {
     return order1.time>order2.time;
@@ -191,7 +187,7 @@ vector<Order> geoMergeOrders(vector<Order>orderList)
                 Cell cell=orderList[curOrderIndex].cells[j];
                 for(int dx=-distanceThreshold;dx<=distanceThreshold;dx++)
                 {
-                    for(int dy=-distanceThreshold;dy<=distanceThreshold;dy++)
+                    for(int dy=-(distanceThreshold-abs(dx));dy<=(distanceThreshold-abs(dx));dy++)
                     {
                         int nx=cell.x+dx;
                         int ny=cell.y+dy;
@@ -214,19 +210,19 @@ vector<Order> geoMergeOrders(vector<Order>orderList)
             if(freq.find(dsu_find(curOrderIndex,orderParent))!=freq.end())
                 freq.erase(dsu_find(curOrderIndex,orderParent));
             int bestPartnerOrderIndex=-1;
-            double bestOverlapRatio=0.0;
+            int bestOverlapPercent=-1;
             for(auto &it:freq)
             {
                 int neighbourOrderIndex=it.first;
                 int neighbourOrderSize=orderList[neighbourOrderIndex].getOrderSize();
                 if(neighbourOrderSize+orderList[curOrderIndex].getOrderSize()>max_capacity_robot)
                     continue;
-                double overlapRatio=(it.second*1.0)/neighbourOrderSize;
-                if(overlapRatio<overlapThreshold)
+                int overlapPercent=(int)round((it.second*100.0)/neighbourOrderSize);
+                if(overlapPercent<overlapThreshold)
                     continue;
-                if(overlapRatio>bestOverlapRatio)
+                if(overlapPercent>bestOverlapPercent)
                 {
-                    bestOverlapRatio=overlapRatio;
+                    bestOverlapPercent=overlapPercent;
                     bestPartnerOrderIndex=neighbourOrderIndex;
                 }
             }
@@ -241,35 +237,6 @@ vector<Order> geoMergeOrders(vector<Order>orderList)
         if(dsu_find(i,orderParent)==i)
             mergedOrders.push_back(orderList[i]);
     }
-    return mergedOrders;
-}
-
-vector<Order> greedyMergeOrdersDescTime(vector<Order>orderList)  // merges orders by sorting them in descending order according to catering time
-{
-    int n=orderList.size();    
-    for(int i=0;i<n;i++)
-        start_recurrence(orderList[i]);
-    sort(orderList.begin(),orderList.end(),compOrdersDescTime);
-
-    vector<Order>mergedOrders;
-    Order currSetOrder;
-    int currsum=0; 
-    Cell c;
-    for(int i=0;i<n;i++)
-    {
-        if(currsum+orderList[i].getOrderSize()>max_capacity_robot)
-        {
-            mergedOrders.push_back(currSetOrder);
-            currsum=0;
-            currSetOrder=Order();
-            c.x=0;
-            c.y=0;
-            currSetOrder.cells.push_back(c);
-        }
-        currsum+=orderList[i].getOrderSize();
-        currSetOrder=mergeTwoOrders(currSetOrder,orderList[i]);
-    }
-    mergedOrders.push_back(currSetOrder);
     return mergedOrders;
 }
 
