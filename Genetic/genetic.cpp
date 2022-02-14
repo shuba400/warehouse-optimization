@@ -233,7 +233,7 @@ vector<vector<int>>get_valid_child(vector<vector<int>>&child){
 # define MAXGENS 20
 // # define NVARS 3
 # define PXOVER 0.8
-# define PMUTATION 0.15
+# define PMUTATION 0.2
 //
 //  Each GENOTYPE is a member of the population, with
 //  gene: a string of variables,
@@ -320,7 +320,8 @@ int main ( )
     take_input();
     int seed;
     auto tx = caterAllOrders(allOrders);
-    cout<<tx.first<<endl;
+    cout<<"FCFS (no merging , no sorting)"<<endl;
+    cout<<(double)(tx.first*1.0)/80.4672<<endl;
     // vector<vector<int>>batch = random_batching(seed);
     // cout<<endl;
     // cout<<"Total number of batches : "<<batch.size()<<endl;
@@ -389,7 +390,7 @@ int main ( )
   // }
 
   cout << "\n";
-  cout << "  Best fitness = " << population[POPSIZE].fitness << "\n";
+  cout << "  Best fitness = " << (double)(population[POPSIZE].fitness*1.0)/80.4672 << "\n";
 //
 //  Terminate.
 //
@@ -821,7 +822,74 @@ void keep_the_best ( )
   return;
 }
 //****************************************************************************80
+void myMutation(int ind , int& seed){
+  vector<vector<int>>parent = population[ind].gene;
+  int n = parent.size();
+  int b1 = rand()%n;
+  int b2 = b1;
+  while(n!=1 && b2==b1){
+      b2 = i4_uniform_ab(0,n-1,seed);
+      if(b2!=b1){
+        break;
+      }
+      b2++;
+      if(b2==n)b2 = 0;
+  }
+  // mutant parent will store the new batches after mutation
+  vector<vector<int>>mutant_parent;
+  for(int i = 0 ; i < n ; ++i){
+    // adding all batches, except b1 and b2
+      if(i==b1 || i==b2){
+          continue;
+      }
+      mutant_parent.push_back(parent[i]);
+  }
+  n = mutant_parent.size();
 
+  // delete batches b1 and b2
+  vector<pair<int,int>>deleted_orders;
+  for(auto & curr_order : parent[b1]){
+      deleted_orders.push_back({allOrders[curr_order].getOrderSize(), curr_order});
+  }
+  for(auto & curr_order : parent[b2]){
+      deleted_orders.push_back({allOrders[curr_order].getOrderSize(), curr_order});
+  }
+  // sort the deleted orders according to their size
+  sort(deleted_orders.begin(),deleted_orders.end(),greater<pair<int,int>>());
+
+  for(auto & curr_del_order : deleted_orders){
+      // find the best fit for current order in any batch 
+      bool alloted = false;
+      int curr_del_order_size = curr_del_order.first;
+      int best_fit_size = 1e9;
+      int best_fit_index = -1;
+
+      for(int i = 0 ; i < mutant_parent.size() ; ++i){
+          // calculate remaining capacity of current batch
+          int capacity_used = 0;
+          for(auto & currOrder : mutant_parent[i]){
+              capacity_used+=allOrders[currOrder].getOrderSize();
+          }
+          int remaining_capacity = max_capacity_robot - capacity_used;
+          if(curr_del_order_size<=remaining_capacity){
+              if(remaining_capacity<best_fit_size){
+                  best_fit_size = remaining_capacity;
+                  best_fit_index = i;
+                  alloted = true;
+              }
+          }
+      }   
+
+      if(alloted){
+          mutant_parent[best_fit_index].push_back(curr_del_order.second);
+      }
+      else{
+          mutant_parent.push_back({curr_del_order.second});
+      }
+  }
+  population[ind].gene = mutant_parent;
+  // population[ind].fitness = -caterAllOrders(getOrderVector(population[ind].gene)).first;
+}
 void mutate ( int &seed )
 
 //****************************************************************************80
@@ -863,6 +931,14 @@ void mutate ( int &seed )
     //     population[i].gene[j] = r8_uniform_ab ( lbound, ubound, seed );
     //   }
     // }
+  }
+  for ( i = 0; i < POPSIZE; i++ )
+  {
+    x = r8_uniform_ab ( a, b, seed );
+    if ( x < PMUTATION )
+    {
+      myMutation(i,seed);
+    }
   }
   return;
 }
@@ -977,7 +1053,7 @@ void report ( int generation )
   best_val = population[POPSIZE].fitness;
 
   cout << "  " << setw(8) << generation 
-       << "  " << setw(14) << best_val <<"\n";
+       << "  " << setw(14) << -(double)(best_val*1.0)/80.4672 <<" minutes \n";
       //  << "  " << setw(14) << avg 
       //  << "  " << setw(14) << stddev << "\n";
 
