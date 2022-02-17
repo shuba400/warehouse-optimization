@@ -47,7 +47,7 @@ struct Order{
     }
 
     int getOrderSize(){
-        return cells.size() - 1;
+        return cells.size();
     }
 };
 vector<Order>allOrders;
@@ -73,6 +73,11 @@ int min_all_permutation(vector<Cell>&cells,int l){
 }
 int cater_curr_order(Order curr_order){
     // minimum time required to cater this order by a single robot;
+    if(curr_order.getOrderSize()>7){
+      cout<<curr_order.getOrderSize()<<endl;
+      cout<<"hola\n";
+      return 0;
+    }
     int min_time = min_all_permutation(curr_order.cells,0);
     return min_time;
 }
@@ -157,12 +162,6 @@ vector<Order>getOrderVector(vector<vector<int>>batchVector){
   return orderVector;
 }
 
-vector<vector<int>>getRandomMerge(){
-
-  // add logic here;
-  vector<vector<int>>batchVector;
-  return batchVector;
-}
 
 vector<vector<int>>get_valid_child(vector<vector<int>>&child){
     vector<vector<int>>finalChild;
@@ -229,10 +228,10 @@ vector<vector<int>>get_valid_child(vector<vector<int>>&child){
 // 
 //  Change any of these parameters to match your needs 
 //
-# define POPSIZE 25
-# define MAXGENS 20
+# define POPSIZE 200
+# define MAXGENS 50
 // # define NVARS 3
-# define PXOVER 0.8
+# define PXOVER 0.4
 # define PMUTATION 0.2
 //
 //  Each GENOTYPE is a member of the population, with
@@ -689,7 +688,7 @@ vector<vector<int>>random_batching(int &seed){
 
     // we have choosen orderIndex as the next order to include, 
     // either in a new batch or in existing batch depending upon curr batch capacity
-    if(orderIndex + currBatchItems <= max_capacity_robot){
+    if(allOrders[orderIndex].cells.size() + currBatchItems <= max_capacity_robot){
       currBatchItems+=allOrders[orderIndex].cells.size();
       currBatch.push_back(orderIndex);
     }

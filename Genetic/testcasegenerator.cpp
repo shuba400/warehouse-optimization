@@ -47,7 +47,7 @@ const int max_number_robots = 3;      // 800 robots can be deployed in one floor
 //  total order tha "whole" amazon receives 1.6*10^6
 // assuming at least 100 warehouses
 // will try to find data 
-const int max_number_order = 10;   // max number of orders a warehouse shifts | 
+const int max_number_order = 80;   // max number of orders a warehouse shifts | 
                                     // amazon gets 1.6 million orders, but a warehouse will cater smaller no. of orders
 const int max_cell_in_order = 5;
 const int max_velocity = 2;           // 1.3m/s
