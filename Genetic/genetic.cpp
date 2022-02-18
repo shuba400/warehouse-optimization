@@ -52,25 +52,54 @@ struct Order{
 };
 vector<Order>allOrders;
 
-int min_all_permutation(vector<Cell>&cells,int l){
-    int r = cells.size()-1;
-    if(l==r){
-        Cell starting_point = {0,0};
-        int curr_total_time = distance(starting_point,cells[0])+docking_time;
-        for(int i = 1 ; i <=r ; ++i){
-            curr_total_time+=distance(cells[i],cells[i-1])+docking_time;
-        }
-        curr_total_time+=distance(starting_point,cells[r])+docking_time;
-        return curr_total_time;
+//This part calculate TSP, DO NOT TOUCH
+vector<vector<pair<int,pair<int,int>>>> dp;
+pair<int,pair<int,int>> main_info;
+vector<Cell> dp_cells;
+int recur_relation(int mask,int last_element){
+    if(mask == 0) return inf;
+    if(dp[mask][last_element].first != -1) return dp[mask][last_element].first;
+    dp[mask][last_element].first = inf;
+    for(int i = 0; i < dp_cells.size(); i++){
+        if(((mask>>i)&1) == 0 || last_element == i) continue;
+        pair<int,pair<int,int>> temp = {recur_relation(mask^(1<<last_element),i) + distance(dp_cells[i],dp_cells[last_element]) + docking_time,{(mask^(1<<last_element)),i}};
+
+        dp[mask][last_element] = min(dp[mask][last_element],temp);
     }
-    int min_time = INT_MAX;
-    for(int i = l; i <= r ; ++i){
-        swap(cells[l],cells[i]);
-        min_time = min(min_time,min_all_permutation(cells,l+1));
-        swap(cells[l],cells[i]);
-    }
-    return min_time;
+    return dp[mask][last_element].first;
 }
+
+void start_recurrence(Order &o){
+    dp_cells.clear();
+    dp.clear();
+    o.optimalpath.clear();
+    o.time=0;
+    main_info = {inf,{-1,-1}};
+    dp_cells.push_back({0,0});
+    for(auto &x:o.cells) dp_cells.push_back(x);
+    int tot_number_of_element = dp_cells.size();                          
+    pair<int,pair<int,int>> filler_value = {-1,{-1,-1}};  //used to intialize the dp states
+    dp.resize(1<<tot_number_of_element,vector<pair<int,pair<int,int>>>(tot_number_of_element,filler_value));
+    dp[1][0] = {0,{-1,-1}};   //current mask = 0000001, current last cell is  0, this is basically saying that when element is at position 0 , t = 0 intially
+    for(int i = 1; i < tot_number_of_element; i++){
+        pair<int,pair<int,int>> p = {recur_relation((1<<tot_number_of_element) - 1,i) + distance(dp_cells[0],dp_cells[i]) + docking_time,{(1<<tot_number_of_element) - 1,i}};
+        main_info = min(main_info,p);
+    }
+    o.time = main_info.first;
+    int main_mask = main_info.second.first;
+    int last_element = main_info.second.second;
+    while(last_element > -1){
+        o.optimalpath.push_back(dp_cells[last_element]);
+        int new_last_element = dp[main_mask][last_element].second.second;
+        int new_main_mask = dp[main_mask][last_element].second.first;
+        last_element = new_last_element;
+        main_mask = new_main_mask;
+    }
+    o.optimalpath.pop_back();
+    reverse(o.optimalpath.begin(),o.optimalpath.end());
+    return;
+}
+//End of do not touch
 int cater_curr_order(Order curr_order){
     // minimum time required to cater this order by a single robot;
     if(curr_order.getOrderSize()>7){
@@ -78,7 +107,8 @@ int cater_curr_order(Order curr_order){
       cout<<"hola\n";
       return 0;
     }
-    int min_time = min_all_permutation(curr_order.cells,0);
+    start_recurrence(curr_order);
+    int min_time = curr_order.time;
     return min_time;
 }
 
