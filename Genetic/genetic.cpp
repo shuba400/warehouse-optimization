@@ -102,7 +102,7 @@ void start_recurrence(Order &o){
 //End of do not touch
 int cater_curr_order(Order curr_order){
     // minimum time required to cater this order by a single robot;
-    if(curr_order.getOrderSize()>7){
+    if(curr_order.getOrderSize()>max_capacity_robot){
       cout<<curr_order.getOrderSize()<<endl;
       cout<<"hola\n";
       return 0;
@@ -302,7 +302,7 @@ double r8_uniform_ab ( double a, double b, int &seed );
 void report ( int generation );
 void selector ( int &seed );
 void timestamp ( );
-void Xover ( int one, int two, int &seed );
+void Xover ( int one, int two, int &seed ,int ind1,int ind2);
 
 
 
@@ -402,8 +402,8 @@ int main ( )
   for ( generation = 0; generation < MAXGENS; generation++ )
   {
     selector ( seed );
-    crossover ( seed );
-    mutate ( seed );
+    // crossover ( seed );
+    // mutate ( seed );
     report ( generation );
     evaluate ( );
     elitist ( );
@@ -452,32 +452,32 @@ void crossover ( int &seed )
 //    Input/output, int &SEED, a seed for the random number generator.
 //
 {
-  const double a = 0.0;
-  const double b = 1.0;
-  int mem;
-  int one;
-  int first = 0;
-  double x;
+  // const double a = 0.0;
+  // const double b = 1.0;
+  // int mem;
+  // int one;
+  // int first = 0;
+  // double x;
 
-  for ( mem = 0; mem < POPSIZE; ++mem )
-  {
-    x = r8_uniform_ab ( a, b, seed );
+  // for ( mem = 0; mem < POPSIZE; ++mem )
+  // {
+  //   x = r8_uniform_ab ( a, b, seed );
 
-    if ( x < PXOVER )
-    {
-      ++first;
+  //   if ( x < PXOVER )
+  //   {
+  //     ++first;
 
-      if ( first % 2 == 0 )
-      {
-        Xover ( one, mem, seed );
-      }
-      else
-      {
-        one = mem;
-      }
+  //     if ( first % 2 == 0 )
+  //     {
+  //       Xover ( one, mem, seed );
+  //     }
+  //     else
+  //     {
+  //       one = mem;
+  //     }
 
-    }
-  }
+  //   }
+  // }
   return;
 }
 //****************************************************************************80
@@ -852,7 +852,7 @@ void keep_the_best ( )
 }
 //****************************************************************************80
 void myMutation(int ind , int& seed){
-  vector<vector<int>>parent = population[ind].gene;
+  vector<vector<int>>parent = newpopulation[ind].gene;
   int n = parent.size();
   int b1 = rand()%n;
   int b2 = b1;
@@ -916,7 +916,7 @@ void myMutation(int ind , int& seed){
           mutant_parent.push_back({curr_del_order.second});
       }
   }
-  population[ind].gene = mutant_parent;
+  newpopulation[ind].gene = mutant_parent;
   // population[ind].fitness = -caterAllOrders(getOrderVector(population[ind].gene)).first;
 }
 void mutate ( int &seed )
@@ -938,16 +938,16 @@ void mutate ( int &seed )
 //    Input/output, int &SEED, a seed for the random number generator.
 //
 {
-  const double a = 0.0;
-  const double b = 1.0;
-  int i;
-  int j;
-  double lbound;
-  double ubound;
-  double x;
+  // const double a = 0.0;
+  // const double b = 1.0;
+  // int i;
+  // int j;
+  // double lbound;
+  // double ubound;
+  // double x;
 
-  for ( i = 0; i < POPSIZE; i++ )
-  {
+  // for ( i = 0; i < POPSIZE; i++ )
+  // {
     // add logic here 
 
     // for ( j = 0; j < NVARS; j++ )
@@ -960,16 +960,16 @@ void mutate ( int &seed )
     //     population[i].gene[j] = r8_uniform_ab ( lbound, ubound, seed );
     //   }
     // }
-  }
-  for ( i = 0; i < POPSIZE; i++ )
-  {
-    x = r8_uniform_ab ( a, b, seed );
-    if ( x < PMUTATION )
-    {
-      myMutation(i,seed);
-    }
-  }
-  return;
+  // }
+  // for ( i = 0; i < POPSIZE; i++ )
+  // {
+  //   x = r8_uniform_ab ( a, b, seed );
+  //   if ( x < PMUTATION )
+  //   {
+  //     myMutation(i,seed);
+  //   }
+  // }
+  // return;
 }
 //****************************************************************************80
 
@@ -1118,49 +1118,79 @@ void selector ( int &seed )
 //
 //  Find the total fitness of the population.
 //
-  sum = 0.0;
-  for ( mem = 0; mem < POPSIZE; mem++ )
-  {
-    sum = sum + population[mem].fitness;
+//   sum = 0.0;
+//   for ( mem = 0; mem < POPSIZE; mem++ )
+//   {
+//     sum = sum + population[mem].fitness;
+//   }
+// //
+// //  Calculate the relative fitness of each member.
+// //
+//   for ( mem = 0; mem < POPSIZE; mem++ )
+//   {
+//     population[mem].rfitness = population[mem].fitness / sum;
+//   }
+// // 
+// //  Calculate the cumulative fitness.
+// //
+//   population[0].cfitness = population[0].rfitness;
+//   for ( mem = 1; mem < POPSIZE; mem++ )
+//   {
+//     population[mem].cfitness = population[mem-1].cfitness +       
+//       population[mem].rfitness;
+//   }
+// // 
+// //  Select survivors using cumulative fitness. 
+// //
+//   for ( i = 0; i < POPSIZE; i++ )
+//   { 
+//     p = r8_uniform_ab ( a, b, seed );
+//     if ( p < population[0].cfitness )
+//     {
+//       newpopulation[i] = population[0];      
+//     }
+//     else
+//     {
+//       for ( j = 0; j < POPSIZE; j++ )
+//       { 
+//         if ( population[j].cfitness <= p && p < population[j+1].cfitness )
+//         {
+//           newpopulation[i] = population[j+1];
+//         }
+//       }
+//     }
+//   }
+//
+
+
+  // sort the populaton according to fitness value
+  sort(population,population+POPSIZE+1,[](const struct genotype& a, const struct genotype& b)->bool{
+    return a.fitness<b.fitness;
+  });
+
+  for(int i = 0 ; i <= POPSIZE ; ++i)newpopulation[i] = population[i];
+
+  int top = 0.2*POPSIZE;
+  for(int i = POPSIZE-1; i>=POPSIZE-top ; --i){
+    newpopulation[i] = population[i];
   }
-//
-//  Calculate the relative fitness of each member.
-//
-  for ( mem = 0; mem < POPSIZE; mem++ )
-  {
-    population[mem].rfitness = population[mem].fitness / sum;
+  
+  // choose remaining population 
+  for(int i = 0 ; i < POPSIZE - top ; ++i,i++){
+    int topParent = i4_uniform_ab(POPSIZE-top,POPSIZE-1,seed);
+    int nonTopParent = i4_uniform_ab(0,POPSIZE-top-1,seed);
+
+    // this part needs to be handled 
+    Xover(topParent,nonTopParent,seed,i,i+1);
   }
-// 
-//  Calculate the cumulative fitness.
-//
-  population[0].cfitness = population[0].rfitness;
-  for ( mem = 1; mem < POPSIZE; mem++ )
-  {
-    population[mem].cfitness = population[mem-1].cfitness +       
-      population[mem].rfitness;
-  }
-// 
-//  Select survivors using cumulative fitness. 
-//
-  for ( i = 0; i < POPSIZE; i++ )
-  { 
-    p = r8_uniform_ab ( a, b, seed );
-    if ( p < population[0].cfitness )
-    {
-      newpopulation[i] = population[0];      
+
+  for(int i = 0 ; i < POPSIZE ; ++i){
+    double prob = r8_uniform_ab(0.0,1.0,seed);
+    if(prob<PMUTATION){
+      myMutation(i,seed);
     }
-    else
-    {
-      for ( j = 0; j < POPSIZE; j++ )
-      { 
-        if ( population[j].cfitness <= p && p < population[j+1].cfitness )
-        {
-          newpopulation[i] = population[j+1];
-        }
-      }
-    }
   }
-// 
+
 //  Overwrite the old population with the new one.
 //
   for ( i = 0; i < POPSIZE; i++ )
@@ -1204,7 +1234,7 @@ void timestamp ( )
 }
 //****************************************************************************80
 
-void Xover ( int one, int two, int &seed )
+void Xover ( int one, int two, int &seed ,int ind1,int ind2)
 
 //****************************************************************************80
 // 
@@ -1271,8 +1301,10 @@ void Xover ( int one, int two, int &seed )
     }
 
     // these two childs generated may be  invalid
-  population[one].gene = get_valid_child(child1);
-  population[two].gene = get_valid_child(child2);
+  // population[one].gene = get_valid_child(child1);
+  // population[two].gene = get_valid_child(child2);
+  newpopulation[two].gene = get_valid_child(child1);
+  newpopulation[two].gene = get_valid_child(child2);
 
 // 
 //  Select the crossover point.
