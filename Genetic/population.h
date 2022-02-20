@@ -1,44 +1,3 @@
-#include<bits/stdc++.h>
-using namespace std;
-#include<time.h>
-#define FASTIO	ios_base::sync_with_stdio(false),cin.tie(NULL),cout.tie(NULL)
-const int inf = 1e9;
-
-int ROWS,COLS;
-int docking_time;    //==> T ==> dist + D 
-int num_of_robots;
-int num_of_orders;
-int velocity;
-int max_capacity_robot;
-
-// class to store details of a single cell
-struct Cell{
-    int x,y; 
-    bool operator<(const Cell &o)  const {
-        return (x < o.x) || (x == o.x && y < o.y);
-    }
-    friend ostream& operator << (ostream &os, const Cell &m) {return os << "{" << m.x << "," << m.y << "}";}
-};
-
-int distance(Cell a,Cell b){
-    return abs(a.x - b.x) + abs(a.y - b.y);
-}
-
-// class to store all the details related to a single order
-struct Order{
-    vector<Cell>cells;  // to store coordinates of each item in current order
-    vector<Cell> optimalpath;
-    vector<int> index;
-    int time;
-    Order(){   
-        time = 0;
-    }
-    int getOrderSize(){
-        return cells.size() - 1;
-    }
-};
-
-
 bool compOrdersDescSize(Order &order1,Order &order2)
 {
     return order1.getOrderSize()>order2.getOrderSize();
@@ -236,59 +195,26 @@ vector<vector<int>> populate_by_GreedyOnly(){
     return ans;
 }
 
-void cal_for_given_test(){
-    vector<vector<int>> a = populate_by_GeometryOnly(30);
-    vector<vector<int>> b = populate_by_GeometryAndGreedy(20);
-    vector<vector<int>> c = populate_by_GreedyOnly();
-    for(auto &x:a){
-        cout << "{ ";
-        for(auto &y:x) cout << y << " ";
-        cout << " } ";
-    }
-    cout << endl;
-    for(auto &x:b){
-        cout << "{ ";
-        for(auto &y:x) cout << y << " ";
-        cout << " } ";
-    }
-    cout << endl;
-    for(auto &x:c){
-        cout << "{ ";
-        for(auto &y:x) cout << y << " ";
-        cout << " } ";
-    }
-
-    // cout<<"Each Order' s optimal cell visiting sequence:\n";
-    // for(int i=0;i<num_of_orders;i++)
-    // {
-    //     cout<<"Order "<<i<<": ";
-    //     for(int j=0;j<allOrders[i].optimalpath.size();j++)
-    //         cout<<"("<<allOrders[i].optimalpath[j].x<<","<<allOrders[i].optimalpath[j].y<<") ";
-    //         cout << "---->" << allOrders[i].time << endl;
-    //     cout<<"\n";
-    // }
-    // cout<<"\n";
-
-    // cout<<"Assignments of Orders to Robots:\n";
-    // for(int i=0;i<num_of_robots;i++)
-    // {
-    //     cout<<"Robot "<<i+1<<": ";
-    //     for(int j=0;j<robotTasks[i].size();j++)
-    //         cout<<robotTasks[i][j]+1<<" ";
-    //     cout<<"\n";
-    // }
-    //     cout<<"Each Robot's Path:\n";
-    // for(int i=0;i<num_of_robots;i++)
-    // {
-    //     cout<<"Robot "<<i+1<<": ";
-    //     for(int j=0;j<robotTasks[i].size();j++)
-    //     {
-    //         cout<<"(0,0) ";
-    //         for(int k=0;k<allOrders[robotTasks[i][j]].optimalpath.size();k++)
-    //             cout<<"("<<allOrders[robotTasks[i][j]].optimalpath[k].x<<","<<allOrders[robotTasks[i][j]].optimalpath[k].y<<") ";
-    //     }           
-    //     cout<<"(0,0)"; 
-    //     cout<<"\n";
-    // }
-    return;
-}
+// void cal_for_given_test(){
+//     vector<vector<int>> a = populate_by_GeometryOnly(30);
+//     vector<vector<int>> b = populate_by_GeometryAndGreedy(20);
+//     vector<vector<int>> c = populate_by_GreedyOnly();
+//     for(auto &x:a){
+//         cout << "{ ";
+//         for(auto &y:x) cout << y << " ";
+//         cout << " } ";
+//     }
+//     cout << endl;
+//     for(auto &x:b){
+//         cout << "{ ";
+//         for(auto &y:x) cout << y << " ";
+//         cout << " } ";
+//     }
+//     cout << endl;
+//     for(auto &x:c){
+//         cout << "{ ";
+//         for(auto &y:x) cout << y << " ";
+//         cout << " } ";
+//     }
+//     return;
+// }
