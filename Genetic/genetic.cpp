@@ -38,6 +38,7 @@ int distance(Cell a,Cell b){
 struct Order{
     vector<Cell>cells;  // to store coordinates of each item in current order
     vector<Cell> optimalpath;
+    vector<int> index;
     int time;
     bool dp_done;
 
