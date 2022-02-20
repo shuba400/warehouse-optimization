@@ -105,9 +105,14 @@ void start_recurrence(Order &o){
 //End of do not touch
 int cater_curr_order(Order curr_order){
     // minimum time required to cater this order by a single robot;
+    if(curr_order.getOrderSize()==0){
+      cout<<curr_order.getOrderSize()<<endl;
+      cout<<"Zero Size\n";
+      return 0;
+    }
     if(curr_order.getOrderSize()>max_capacity_robot){
       cout<<curr_order.getOrderSize()<<endl;
-      cout<<"hola\n";
+      cout<<"sizeExceeded\n";
       return 0;
     }
     start_recurrence(curr_order);
@@ -801,10 +806,28 @@ void initialize ( string filename, int &seed )
   //     population[j].gene[i] = r8_uniform_ab ( lbound, ubound, seed );
   //   }
   // }
+  double a = 0.2;
+  double b = 0.2;
+  double c = 0.6;
   for(int i = 0 ; i <= POPSIZE ; ++i){
     population[i].gene = random_batching(seed);
     population[i].fitness = -9999999;
   }
+  // for(int i = 0 ; i <= 0.2*POPSIZE ; ++i){
+  //   population[i].gene = populate_by_GreedyOnly();
+  // }
+  // for(int i = 0.2*POPSIZE+1;i<=0.4*POPSIZE;++i){
+  //   int d = i4_uniform_ab(5,20,seed);
+  //   population[i].gene = populate_by_GeometryOnly(d);
+  // }
+  // for(int i = 0.4*POPSIZE+1 ; i<POPSIZE ; ++i){
+  //   int d = i4_uniform_ab(5,20,seed);
+  //   population[i].gene = populate_by_GeometryAndGreedy(d);
+  // }
+  // for(int i = 0 ; i <= POPSIZE ; ++i){
+  //   population[i].gene = random_batching(seed);
+  //   population[i].fitness = -9999999;
+  // }
   // input.close ( );
 
   return;

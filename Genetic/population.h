@@ -9,7 +9,7 @@ bool compOrdersDescTime(Order &order1,Order &order2)
 
 Order mergeTwoOrders(Order &order1,Order &order2)  //Adds all cells from order2 to order1 
 {
-    for(int i=1;i<order2.cells.size();i++)
+    for(int i=0;i<order2.cells.size();i++)
         order1.cells.push_back(order2.cells[i]);
     for(int i = 0; i < order2.index.size(); i++){ 
         order1.index.push_back(order2.index[i]);
@@ -62,7 +62,7 @@ vector<Order> geoMergeOrders(vector<Order>orderList,int distanceThreshold)
         {
             int curOrderIndex=dsu_find(i,orderParent);
             vector<pair<int,int>>neighbours;
-            for(int j=1;j<orderList[curOrderIndex].cells.size();j++)
+            for(int j=0;j<orderList[curOrderIndex].cells.size();j++)
             {
                 Cell cell=orderList[curOrderIndex].cells[j];
                 for(int dx=-distanceThreshold;dx<=distanceThreshold;dx++)
