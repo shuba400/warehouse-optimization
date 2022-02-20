@@ -52,6 +52,8 @@ struct Order{
     }
 };
 vector<Order>allOrders;
+vector<vector<vector<int>>>L;
+#include "population.h"
 
 //This part calculate TSP, DO NOT TOUCH
 vector<vector<pair<int,pair<int,int>>>> dp;
@@ -156,6 +158,8 @@ void take_input(){
     cin>>docking_time>>velocity >> max_capacity_robot;
     cin>>num_of_robots>>num_of_orders;
     allOrders.clear();
+    vector<int>tempv;
+    L.assign(ROWS+1,vector<vector<int>>(COLS+1,tempv));
     for(int i = 0 ; i < num_of_orders;++i){
 
         int currOrderSize;
@@ -165,15 +169,15 @@ void take_input(){
         tmp.x = 0;
         tmp.y = 0;
         // currOrder.cells.push_back(tmp);
+        currOrder.index.push_back(i);
         for(int j = 0 ; j < currOrderSize ; ++j){
             // x and y coordinates of items in current order
             cin >> tmp.x >> tmp.y;
             currOrder.cells.push_back(tmp);
+            L[tmp.x][tmp.y].push_back(i);
         }
         allOrders.push_back(currOrder);
-        allOrders.back().time = cater_curr_order(allOrders.back());
-        // start_recurrence(allOrders[i]);
-    }
+    }    
 }
 
 // vector<Order> will be passed to caterAllOrders
