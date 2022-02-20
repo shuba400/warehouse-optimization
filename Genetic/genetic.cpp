@@ -809,25 +809,25 @@ void initialize ( string filename, int &seed )
   double a = 0.2;
   double b = 0.2;
   double c = 0.6;
-  for(int i = 0 ; i <= POPSIZE ; ++i){
-    population[i].gene = random_batching(seed);
-    population[i].fitness = -9999999;
-  }
-  // for(int i = 0 ; i <= 0.2*POPSIZE ; ++i){
-  //   population[i].gene = populate_by_GreedyOnly();
-  // }
-  // for(int i = 0.2*POPSIZE+1;i<=0.4*POPSIZE;++i){
-  //   int d = i4_uniform_ab(5,20,seed);
-  //   population[i].gene = populate_by_GeometryOnly(d);
-  // }
-  // for(int i = 0.4*POPSIZE+1 ; i<POPSIZE ; ++i){
-  //   int d = i4_uniform_ab(5,20,seed);
-  //   population[i].gene = populate_by_GeometryAndGreedy(d);
-  // }
   // for(int i = 0 ; i <= POPSIZE ; ++i){
   //   population[i].gene = random_batching(seed);
   //   population[i].fitness = -9999999;
   // }
+  for(int i = 0 ; i <= 0.2*POPSIZE ; ++i){
+    population[i].gene = populate_by_GreedyOnly();
+  }
+  for(int i = 0.2*POPSIZE+1;i<=0.4*POPSIZE;++i){
+    int d = i4_uniform_ab(5,20,seed);
+    population[i].gene = populate_by_GeometryOnly(d);
+  }
+  for(int i = 0.4*POPSIZE+1 ; i<POPSIZE ; ++i){
+    int d = i4_uniform_ab(5,20,seed);
+    population[i].gene = populate_by_GeometryAndGreedy(d);
+  }
+  for(int i = 0 ; i <= POPSIZE ; ++i){
+    population[i].gene = random_batching(seed);
+    population[i].fitness = -9999999;
+  }
   // input.close ( );
 
   return;
