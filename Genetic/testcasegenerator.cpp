@@ -51,7 +51,7 @@ const int max_number_order = 50;   // max number of orders a warehouse shifts |
                                     // amazon gets 1.6 million orders, but a warehouse will cater smaller no. of orders
 const int max_cell_in_order = 5;
 const int max_velocity = 2;           // 1.3m/s
-const int capacity_of_robot = 7;    //robot can pick 7 items at total
+const int capacity_of_robot = 10;    //robot can pick 7 items at total
 
 
 int ROWS = 250, COLS = 250;     // 250m x 250m 

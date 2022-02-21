@@ -9,6 +9,16 @@
 # include <cstring>
 
 using namespace std;
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+template<class T>
+T rand(T a, T b) {
+    return uniform_int_distribution<T>(a, b)(rng);
+}
+template<class T>
+T rand() {
+    return uniform_int_distribution<T>()(rng);
+}
+
 
 // -----------------------------
 const int inf = 1e9;
@@ -107,13 +117,13 @@ int cater_curr_order(Order curr_order){
     // minimum time required to cater this order by a single robot;
     if(curr_order.getOrderSize()==0){
       cout<<curr_order.getOrderSize()<<endl;
-      cout<<"Zero Size\n";
-      return 0;
+      cout<<"Zero Size"<<endl;
+      return -1234;
     }
     if(curr_order.getOrderSize()>max_capacity_robot){
       cout<<curr_order.getOrderSize()<<endl;
-      cout<<"sizeExceeded\n";
-      return 0;
+      cout<<"sizeExceeded"<<endl;
+      return -1234;
     }
     start_recurrence(curr_order);
     int min_time = curr_order.time;
@@ -268,7 +278,7 @@ vector<vector<int>>get_valid_child(vector<vector<int>>&child){
 // 
 //  Change any of these parameters to match your needs 
 //
-# define POPSIZE 200
+# define POPSIZE 150
 # define MAXGENS 50
 // # define NVARS 3
 # define PXOVER 0.4
@@ -371,7 +381,6 @@ int main ( )
     //   }
     //   cout<<endl;
     // }
-    // return 0;
 
   // int a = 9, b = 100000000;
   // int p = rand();
@@ -414,8 +423,8 @@ int main ( )
     selector ( seed );
     // crossover ( seed );
     // mutate ( seed );
-    report ( generation );
     evaluate ( );
+    report ( generation );
     elitist ( );
   }
 
@@ -719,8 +728,7 @@ vector<vector<int>>random_batching(int &seed){
   while(includedOrders.size()<num_of_orders){
     // pick a random order which is not selected
     // int orderIndex = i4_uniform_ab(0,num_of_orders-1,seed);
-    int orderIndex = rand();
-    orderIndex%=num_of_orders;
+    int orderIndex = rand(0,num_of_orders-1);
     while(includedOrders.find(orderIndex)!=includedOrders.end()){
       orderIndex++;
       if(orderIndex==num_of_orders)orderIndex = 0;
@@ -809,25 +817,51 @@ void initialize ( string filename, int &seed )
   double a = 0.2;
   double b = 0.2;
   double c = 0.6;
+  map<vector<vector<int>>,int>alreadyIncluded;
+
+  population[0].gene = populate_by_GreedyOnly();
+  alreadyIncluded[population[0].gene]++;
+
+  for(int i = 1 ; i <= 0.2*POPSIZE ; ++i){
+    population[i].gene = random_batching(seed);
+    if(alreadyIncluded.find(population[i].gene)!=alreadyIncluded.end()){
+      population[i].fitness = -999;
+    }
+    alreadyIncluded[population[i].gene] = 1;
+  }
+
+  for(int i = 0.2*POPSIZE+1;i<=0.4*POPSIZE;++i){
+    int d = rand(1,20);
+    population[i].gene = populate_by_GeometryOnly(d);
+    if(alreadyIncluded.find(population[i].gene)!=alreadyIncluded.end()){
+      population[i].fitness = -999;
+    }
+    alreadyIncluded[population[i].gene] = 1;
+  }
+  for(int i = 0.4*POPSIZE+1 ; i<POPSIZE ; ++i){
+    int d = rand(1,20);
+    population[i].gene = populate_by_GeometryAndGreedy(d);
+    if(alreadyIncluded.find(population[i].gene)!=alreadyIncluded.end()){
+      population[i].fitness = -999;
+    }
+    alreadyIncluded[population[i].gene] = 1;
+  }
+  for(int i = 0 ; i< POPSIZE ; ++i){
+    if(population[i].fitness==-999){
+      population[i].gene = random_batching(seed);
+    }
+  }
+
+  for(int i = 0 ; i <= POPSIZE ; ++i){
+    population[i].fitness = -inf;
+  }
+  
+  // random batching
   // for(int i = 0 ; i <= POPSIZE ; ++i){
   //   population[i].gene = random_batching(seed);
   //   population[i].fitness = -9999999;
   // }
-  for(int i = 0 ; i <= 0.2*POPSIZE ; ++i){
-    population[i].gene = populate_by_GreedyOnly();
-  }
-  for(int i = 0.2*POPSIZE+1;i<=0.4*POPSIZE;++i){
-    int d = i4_uniform_ab(5,20,seed);
-    population[i].gene = populate_by_GeometryOnly(d);
-  }
-  for(int i = 0.4*POPSIZE+1 ; i<POPSIZE ; ++i){
-    int d = i4_uniform_ab(5,20,seed);
-    population[i].gene = populate_by_GeometryAndGreedy(d);
-  }
-  for(int i = 0 ; i <= POPSIZE ; ++i){
-    population[i].gene = random_batching(seed);
-    population[i].fitness = -9999999;
-  }
+
   // input.close ( );
 
   return;
@@ -874,7 +908,7 @@ void keep_the_best ( )
   // {
     // population[POPSIZE].gene[i] = population[cur_best].gene[i];
   // }
-    population[POPSIZE].gene = population[cur_best].gene;
+  population[POPSIZE].gene = population[cur_best].gene;
 
   return;
 }
@@ -1095,18 +1129,18 @@ void report ( int generation )
     cout << "\n";
   }
 
-  sum = 0.0;
-  sum_square = 0.0;
+  // sum = 0.0;
+  // sum_square = 0.0;
 
-  for ( i = 0; i < POPSIZE; i++ )
-  {
-    sum = sum + population[i].fitness;
-    sum_square = sum_square + population[i].fitness * population[i].fitness;
-  }
+  // for ( i = 0; i < POPSIZE; i++ )
+  // {
+  //   sum = sum + population[i].fitness;
+  //   sum_square = sum_square + population[i].fitness * population[i].fitness;
+  // }
 
-  avg = sum / ( double ) POPSIZE;
-  square_sum = avg * avg * POPSIZE;
-  stddev = sqrt ( ( sum_square - square_sum ) / ( POPSIZE - 1 ) );
+  // avg = sum / ( double ) POPSIZE;
+  // square_sum = avg * avg * POPSIZE;
+  // stddev = sqrt ( ( sum_square - square_sum ) / ( POPSIZE - 1 ) );
   best_val = population[POPSIZE].fitness;
 
   cout << "  " << setw(8) << generation 
