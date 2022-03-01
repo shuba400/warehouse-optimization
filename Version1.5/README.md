@@ -79,6 +79,26 @@ Find_Neighbours(Order O):
 				freq[I]++
 	return freq
 ```
+
+Genetic Parts
+
+```c
+// cater all order in current batches
+time_taken_to_cater_all_orders = -1
+initialize <priority_queue> queue // min-heap on the basic of R.time (earliest time when robot is free)
+for each robot R in robots:
+    initialize R.time = 0        
+    push(R)
+
+for order O in Batches
+    earliest_free_robot(R) <-- queue.top()
+    pop from queue
+    R.time  <-- R.time + O.time 
+    R.order <-- R.orders + O
+    push(R)
+    time_taken_to_cater_all_orders  <-- max of time_taken_to_cater_all_orders , R.time
+```
+
 #### Merging these Neigbours with current Order
 ```c
 Merging_Neighbours(MergedOrders,Neighbours,O):
