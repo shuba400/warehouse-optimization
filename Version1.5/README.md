@@ -112,19 +112,17 @@ Find_Distance(Order Current, Order Parent):
 
 ### Assignments of robots to modified Orders (after applying Merging Algo on intitial input Orders)
 ```c
-initialize <priority_queue> queue  
-for each robot R in robots:
-	initialize R.time = 0
-	push(R)
+initialize next_free_time=0 for each robot
+push all robots in a priority queue sorted(ascending) by robot’s next_free_time
 
-sort(Orders) //sorts order in decreasing order according to time
+sort(Batches) //sorts order in decreasing order according to time
 
-for order O in Orders
-	earliest_free_robot(R) <-- queue.top()
-	pop from queue
-	R.time 	<-- R.time + O.time 
-	R.order <-- R.orders + O
-	push(R)
+for batch B in Batches
+	earliest_free_robot <-- queue.top()
+	pop from queue	
+	Assign batch B to robot R
+	R.next_free_time <-- R.next_free_time + B.catering_time 
+	push R to queue
 ```
 
 So for testing purpose we can change the custom sort function to get get the answer for all the cases.
