@@ -160,49 +160,58 @@ void dsu_merge(int o1,int o2,vector<int>&orderParent,vector<Order>&orderList)
     orderList[rooto1]=mergeTwoOrders(orderList[rooto1],orderList[rooto2]);
 }
 
-// Iterates over all orders and greedily merges the largest possible order into current order
-vector<Order> CW1_merge(vector<Order>orderList)  
+vector<Order> CW2_merge(vector<Order>orderList)  
 {
-    int n=orderList.size();
-    vector<int>orderParent(n);
-    iota(orderParent.begin(),orderParent.end(),0);
-
-    vector<pair<int,pair<int,int>>>savings_values;
-    for(int i=0;i<n;i++)
+    while(1)
     {
-        for(int j=i+1;j<n;j++)
+        int n=orderList.size();
+        vector<int>orderParent(n);
+        iota(orderParent.begin(),orderParent.end(),0);
+
+        vector<int>savings_single(n);
+        for(int i=0;i<n;i++)
         {
             start_recurrence(orderList[i]);
-            start_recurrence(orderList[j]);
-            Order mergedOrder=mergeTwoOrders(orderList[i],orderList[j]);
-            start_recurrence(mergedOrder);
-            int sav1=orderList[i].time;
-            int sav2=orderList[j].time;
-            int sav12=mergedOrder.time;
-            int sav=sav1+sav2-sav12;
-            savings_values.push_back({sav,{i,j}});
+            savings_single[i]=orderList[i].time;
         }
-    }
-    sort(savings_values.begin(),savings_values.end());
-    reverse(savings_values.begin(),savings_values.end());
-    for(auto &it:savings_values)
-    {
-        int orderIndex1=dsu_find(it.second.first,orderParent);
-        int orderIndex2=dsu_find(it.second.second,orderParent);
-        if(orderList[orderIndex1].subOrderIndexes.size()>1&&orderList[orderIndex2].subOrderIndexes.size()>1)
-            continue;
-        if(orderList[orderIndex1].getOrderSize()+orderList[orderIndex2].getOrderSize()>max_capacity_robot)
-            continue;
-        dsu_merge(orderIndex1,orderIndex2,orderParent,orderList);
-    }
+        vector<pair<int,pair<int,int>>>savings_pair;
+        for(int i=0;i<n;i++)
+        {
+            for(int j=i+1;j<n;j++)
+            {
+                if(orderList[i].getOrderSize()+orderList[j].getOrderSize()>max_capacity_robot)
+                    continue;
+                Order mergedOrder=mergeTwoOrders(orderList[i],orderList[j]);
+                start_recurrence(mergedOrder);
+                int sav=savings_single[i]+savings_single[j]-mergedOrder.time;
+                savings_pair.push_back({sav,{i,j}});
+            }
+        }
 
-    vector<Order>mergedOrders;
-    for(int i=0;i<n;i++)
-    {
-        if(dsu_find(i,orderParent)==i)
-            mergedOrders.push_back(orderList[i]);
+        sort(savings_pair.begin(),savings_pair.end());
+        reverse(savings_pair.begin(),savings_pair.end());
+        int flag=0;
+        for(auto &it:savings_pair)
+        {
+            int orderIndex1=dsu_find(it.second.first,orderParent);
+            int orderIndex2=dsu_find(it.second.second,orderParent);
+            if(orderList[orderIndex1].getOrderSize()+orderList[orderIndex2].getOrderSize()>max_capacity_robot)
+                continue;
+            dsu_merge(orderIndex1,orderIndex2,orderParent,orderList);
+            flag++;
+            break;
+        }
+        if(flag==0)
+            break;        
+        vector<Order>mergedOrders;
+        for(int i=0;i<n;i++)
+        {
+            if(dsu_find(i,orderParent)==i)
+                mergedOrders.push_back(orderList[i]);
+        }
+        orderList=mergedOrders;
     }
-    return mergedOrders;
+    return orderList;
 }
 
 // Returns time taken to cater all orders by all robots
@@ -210,7 +219,7 @@ pair<int,vector<vector<int>>> caterAllOrders()
 {   
     vector<Order>mergedOrders=allOrders;
     cout<<"Number of Orders (Initially) : \n"<<mergedOrders.size()<<"\n";
-    mergedOrders=CW1_merge(mergedOrders);
+    mergedOrders=CW2_merge(mergedOrders);
     cout<<"Number of Orders (After CW2 Merging) : \n"<<mergedOrders.size()<<"\n";
 
     for(int i = 0; i < mergedOrders.size(); i++)
@@ -256,7 +265,7 @@ void printTestCaseDetails(){
 void cal_for_given_test(){
     take_input();
     
-    cout<<"----CW1:----\n";
+    cout<<"----CW2:----\n";
     clock_t tStart=clock();
 
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();
