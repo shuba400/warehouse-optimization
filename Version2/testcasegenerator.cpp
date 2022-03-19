@@ -63,7 +63,7 @@ const int max_order_size = 5;
 const double max_velocity = 80.4672;  // metre/min
 const int capacity_of_robot = 10;  
 const int max_number_of_total_items = 600000;
-const int max_cells_in_item = 1;  
+const int max_cells_in_item = 5;  
 
 
 int ROWS = 250, COLS = 250;     // 250m x 250m 
