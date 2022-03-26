@@ -1,12 +1,6 @@
+// #pragma GCC optimize("O2")
+#pragma GCC optimize("Ofast")
 #include<bits/stdc++.h>
-# include <cmath>
-# include <cstdlib>
-# include <iostream>
-# include <iomanip>
-# include <fstream>
-# include <iomanip>
-# include <ctime>
-# include <cstring>
 
 using namespace std;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
@@ -311,42 +305,9 @@ void selector ( int &seed );
 void timestamp ( );
 void Xover ( int one, int two, int &seed ,int ind1,int ind2);
 vector<vector<int>>random_batching(int &seed);
-//****************************************************************************80
 
 int main ( )
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    MAIN supervises the genetic algorithm.
-//
-//  Discussion:
-//
-//    Each generation involves selecting the best 
-//    members, performing crossover & mutation and then 
-//    evaluating the resulting population, until the terminating 
-//    condition is satisfied   
-//
-//    This is a simple genetic algorithm implementation where the 
-//    evaluation function takes positive values only and the 
-//    fitness of an individual is the same as the value of the 
-//    objective function.  
-
-//  Parameters:
-//
-//    MAXGENS is the maximum number of generations.
-//
-//    NVARS is the number of problem variables.
-//
-//    PMUTATION is the probability of mutation.
-//
-//    POPSIZE is the population size. 
-//
-//    PXOVER is the probability of crossover.                          
-//
 {
-
     freopen("input.txt", "r", stdin);
     int t;
     cin>>t;
@@ -356,61 +317,50 @@ int main ( )
     cout<<"FCFS (no merging , no sorting)"<<endl;
     cout<<(double)(tx.first*1.0)/80.4672<<endl;
 
-  string filename = "input1.txt";
-  int generation;
-  int i;
+    string filename = "input1.txt";
+    int generation;
+    int i;
 
-  timestamp ( );
-  cout << "\n";
-  cout << "SIMPLE_GA:\n";
-  cout << "  C++ version\n";
-  cout << "  A simple example of a genetic algorithm.\n";
+    timestamp ( );
+    cout << "\n";
+    cout << "SIMPLE_GA:\n";
+    cout << "  C++ version\n";
+    cout << "  A simple example of a genetic algorithm.\n";
 
-  seed = 123456789;
+    seed = 123456789;
 
-  initialize ( filename, seed );
+    initialize ( filename, seed );
 
-  evaluate ( );
-
-  keep_the_best ( );
-
-  for ( generation = 0; generation < MAXGENS; generation++ )
-  {
-    selector ( seed );
-    // crossover ( seed );
-    // mutate ( seed );
     evaluate ( );
-    report ( generation );
-    elitist ( );
-  }
 
-  cout << "\n";
-  cout << "  Best member after " << MAXGENS << " generations:\n";
-  cout << "\n";
+    keep_the_best ( );
 
-  // for ( i = 0; i < NVARS; i++ )
-  // {
-  //   cout << "  var(" << i << ") = " << population[POPSIZE].gene[i] << "\n";
-  // }
+    for ( generation = 0; generation < MAXGENS; generation++ )
+    {
+      selector ( seed );
+      // crossover ( seed );
+      // mutate ( seed );
+      evaluate ( );
+      report ( generation );
+      elitist ( );
+    }
 
-  cout << "\n";
-  cout << "  Best fitness = " << (double)(population[POPSIZE].fitness*1.0)/80.4672 << "\n";
-//
-//  Terminate.
-//
-  cout << "\n";
-  cout << "SIMPLE_GA:\n";
-  cout << "  Normal end of execution.\n";
-  cout << "\n";
-  timestamp ( );
+    cout << "\n";
+    cout << "  Best member after " << MAXGENS << " generations:\n";
+    cout << "\n";
 
-  return 0;
+    cout << "\n";
+    cout << "  Best fitness = " << (double)(population[POPSIZE].fitness*1.0)/80.4672 << "\n";
+    cout << "\n";
+    cout << "SIMPLE_GA:\n";
+    cout << "  Normal end of execution.\n";
+    cout << "\n";
+    timestamp ( );
+
+    return 0;
 }
-//****************************************************************************80
 
 void elitist ( )
-
-//****************************************************************************80
 // 
 //  Purpose:
 //
@@ -479,19 +429,11 @@ void elitist ( )
 //
   if ( population[POPSIZE].fitness <= best )
   {
-    // for ( i = 0; i < NVARS; i++ )
-    // {
-      // population[POPSIZE].gene[i] = population[best_mem].gene[i];
-    // }
     population[POPSIZE].gene = population[best_mem].gene;
     population[POPSIZE].fitness = population[best_mem].fitness;
   }
   else
   {
-    // for ( i = 0; i < NVARS; i++ )
-    // {
-    //   population[worst_mem].gene[i] = population[POPSIZE].gene[i];
-    // }
     population[worst_mem].gene = population[POPSIZE].gene;
     population[worst_mem].fitness = population[POPSIZE].fitness;
   } 
@@ -657,7 +599,7 @@ void initialize ( string filename, int &seed )
   population[0].gene = populate_by_GreedyOnly();
   alreadyIncluded[population[0].gene]++;
 
-  // 0.2 % of the population is random batching
+  // 20 % of the population is random batching
   for(int i = 1 ; i <= 0.2*POPSIZE ; ++i){
     population[i].gene = random_batching(seed);
     // if this member is being repeated mark it , by making its fitness value as -999
@@ -667,7 +609,7 @@ void initialize ( string filename, int &seed )
     alreadyIncluded[population[i].gene] = 1;
   }
 
-  // next 0.2% of the population by Geometrical merging 
+  // next 20% of the population by Geometrical merging 
   for(int i = 0.2*POPSIZE+1;i<=0.4*POPSIZE;++i){
     int d = rand(1,20);
     population[i].gene = populate_by_GeometryOnly(d);

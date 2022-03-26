@@ -175,10 +175,11 @@ vector<Order> greedyMergeOrdersSize(vector<Order>orderList)
     return mergedOrders;
 }
 
-pair<int,vector<pair<int,Cell>>> TSP_Greedy(vector<int>items)
+pair<int,vector<pair<int,Cell>>> nearest_neighbour_TSP(vector<int>items)
 {
     int n=items.size();
     int time=0;
+    // path[i] = {item id , cell for the item id}
     vector<pair<int,Cell>>path;
     vector<bool>isItemVisited(n,false);
     Cell currentCell={0,0};
@@ -228,7 +229,7 @@ pair<int,vector<vector<int>>> caterAllOrders()
 
     for(int i = 0; i < mergedOrders.size(); i++)
     {
-        pair<int,vector<pair<int,Cell>>>temp=TSP_Greedy(mergedOrders[i].items);
+        pair<int,vector<pair<int,Cell>>>temp=nearest_neighbour_TSP(mergedOrders[i].items);
         mergedOrders[i].time=temp.first;
         mergedOrders[i].optimalpath=temp.second;
     }
