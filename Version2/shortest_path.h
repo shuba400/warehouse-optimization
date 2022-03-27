@@ -1,4 +1,4 @@
-int shortest_path_time(vector<int> arr){
+int shortest_path_time(vector<int> arr){ //takes item index (index in that was being used in main item vector)
     vector<Item> a;
     Item tmp;
     tmp.cells.push_back({0,0});
