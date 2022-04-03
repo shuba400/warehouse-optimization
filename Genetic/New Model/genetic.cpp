@@ -3,6 +3,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
+#define debug(a) 					cout<<#a<<": "<<a<<"\n";
+#define hola  cout<<"Hola"<<endl;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 template<class T>
 T rand(T a, T b) {
@@ -19,9 +21,10 @@ int ROWS,COLS;
 int docking_time;    //==> T ==> dist + D 
 int num_of_robots;
 int num_of_orders;
-int velocity;
+double velocity;
 int max_capacity_robot;
 int number_of_total_items;
+int max_cells_in_item=5;
 
 // Structure to store details of a single cell
 struct Cell{
@@ -116,8 +119,7 @@ int ordinary_TSP(vector<int> arr){ //takes item index (index in that was being u
         a.push_back(tmp);
     }
     int n = a.size();
-    int max_cell = 20;
-    vector<vector<int>> dp(n + 1,vector<int>(max_cell,inf));
+    vector<vector<int>> dp(n + 1,vector<int>(max_cells_in_item+1,inf));
     dp[0][0] = 0;
     for(int i= 1; i < n; i++){
         for(int j = 0; j < a[i].cells.size(); j++){
@@ -149,15 +151,12 @@ int cater_curr_order(Order curr_order){
 pair<int,vector<vector<int>>> caterAllOrders(vector<Order>mergedOrder){   
 
     // vector<Order> mergedOrder=merge_orders_asc_size();
-
     // Priority queue will store the earliest free time of all robots
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
-
     // initially all the robots are free at t = 0
     for(int i = 0 ; i < num_of_robots ; ++i){
         robotFreeTimes.push({0,i});
     }
-
     int totalTime = 0;     // total time taken to cater all order
     vector<vector<int>>robotTasks(num_of_robots);
 
@@ -266,11 +265,11 @@ vector<vector<int>>get_valid_child(vector<vector<int>>&child){
 // 
 //  Change any of these parameters to match your needs 
 //
-# define POPSIZE 150
-# define MAXGENS 50
+# define POPSIZE 1000
+# define MAXGENS 100
 // # define NVARS 3
 # define PXOVER 0.4
-# define PMUTATION 0.2
+# define PMUTATION 0.4
 //
 //  Each GENOTYPE is a member of the population, with
 //  gene: a string of variables,
@@ -279,6 +278,7 @@ vector<vector<int>>get_valid_child(vector<vector<int>>&child){
 struct genotype
 {
   vector<vector<int>>gene;
+  vector<vector<int>>itemSequence;
   double fitness;
 };
 
@@ -310,7 +310,7 @@ int main ( )
     auto tx = caterAllOrders(allOrders);
     cout<<"FCFS (no merging , no sorting)"<<endl;
     cout<<(double)(tx.first*1.0)/80.4672<<endl;
-
+    // return 0;
     string filename = "input1.txt";
     int generation;
     int i;
@@ -537,6 +537,22 @@ int i4_uniform_ab ( int a, int b, int &seed )
   return value;
 }
 //****************************************************************************80
+void fill_item_sequence(struct genotype& member){
+  // member.gene[i] = {O1, O2, O3,...}   list of orders in ith batch 
+  // member.itemSequence[i] = {item1, item2, ...}   // all items from O1, then all items from O2 
+  member.itemSequence.clear();
+  member.itemSequence = vector<vector<int>>(member.gene.size());
+
+  for(int i = 0 ; i < member.gene.size() ; ++i){
+    // member[i] denotes ith batch
+    for(auto & currOrderIndex : member.gene[i]){
+      // currOrder.items hold list of all items in currOrder
+      for(auto & currItem : allOrders[currOrderIndex].items){
+        member.itemSequence[i].push_back(currItem);
+      }
+    }
+  }
+}
 
 vector<vector<int>>random_batching(int &seed){
   // create a random merging of order
@@ -610,11 +626,13 @@ void initialize ( string filename, int &seed )
     }
   }
 
+  for(int i = 0 ; i<=POPSIZE ; ++i){
+    fill_item_sequence(population[i]);
+  }
   //fitness value of all members are initialized as -inf
   for(int i = 0 ; i <= POPSIZE ; ++i){
     population[i].fitness = -inf;
   }
-  
   // // random batching - if we want only random batching without any heuristic for initial population
   // for(int i = 0 ; i <= POPSIZE ; ++i){
   //   population[i].gene = random_batching(seed);
@@ -728,6 +746,17 @@ void myMutation(int ind , int& seed){
   // population[ind].fitness = -caterAllOrders(getOrderVector(population[ind].gene)).first;
 }
 
+void mutate_item_sequence(int i){
+  // newpopulation[i].iteSequence -> swap two items in each batch 
+  for(auto & currBatchItems : newpopulation[i].itemSequence){
+    // currBatchItems -> {item1, item2, item3 ... }
+    int sz = currBatchItems.size();
+    int l = rand(0,sz-1);
+    int r = rand(0,sz-1);
+    swap(currBatchItems[l],currBatchItems[r]);
+  }
+}
+
 double r8_uniform_ab ( double a, double b, int &seed )
 //****************************************************************************80
 //  Purpose:
@@ -813,23 +842,35 @@ void selector ( int &seed )
   for(int i = POPSIZE-1; i>=POPSIZE-top ; --i){
     newpopulation[i] = population[i];
   }
-  
+
+  // migration
+  for(int i = 0 ; i < 0.1*POPSIZE ; ++i){
+    newpopulation[i].gene = random_batching(seed);
+  }
+
   // choose remaining population 
-  for(int i = 0 ; i < POPSIZE - top ; ++i,i++){
+  for(int i = 0.1*POPSIZE ; i < POPSIZE - top ; i+=2){
     int topParent = i4_uniform_ab(POPSIZE-top,POPSIZE-1,seed);
     int nonTopParent = i4_uniform_ab(0,POPSIZE-top-1,seed);
 
     // this part needs to be handled 
     Xover(topParent,nonTopParent,seed,i,i+1);
+    // we can modify this , so that itemSequence is not reset
+    fill_item_sequence(newpopulation[i]);
+    fill_item_sequence(newpopulation[i+1]);
   }
 
   for(int i = 0 ; i < POPSIZE ; ++i){
     double prob = r8_uniform_ab(0.0,1.0,seed);
     if(prob<PMUTATION){
       myMutation(i,seed);
+      fill_item_sequence(newpopulation[i]);
+    }
+    prob = r8_uniform_ab(0.0,1.0,seed);
+    if(prob<PMUTATION){
+      mutate_item_sequence(i);
     }
   }
-
 //  Overwrite the old population with the new one.
 //
   for ( int i = 0; i < POPSIZE; i++ )
