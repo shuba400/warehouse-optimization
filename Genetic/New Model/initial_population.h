@@ -89,26 +89,41 @@ vector<vector<int>> populate_by_GreedyOnly(){
     return ans;
 }
 
-// void cal_for_given_test(){
-//     vector<vector<int>> a = populate_by_GeometryOnly(30);
-//     vector<vector<int>> b = populate_by_GeometryAndGreedy(20);
-//     vector<vector<int>> c = populate_by_GreedyOnly();
-//     for(auto &x:a){
-//         cout << "{ ";
-//         for(auto &y:x) cout << y << " ";
-//         cout << " } ";
-//     }
-//     cout << endl;
-//     for(auto &x:b){
-//         cout << "{ ";
-//         for(auto &y:x) cout << y << " ";
-//         cout << " } ";
-//     }
-//     cout << endl;
-//     for(auto &x:c){
-//         cout << "{ ";
-//         for(auto &y:x) cout << y << " ";
-//         cout << " } ";
-//     }
-//     return;
-// }
+vector<vector<int>>random_batching(){
+  set<int>includedOrders;
+  vector<vector<int>>batches;
+  vector<int>currBatch;
+  int currBatchItems = 0;
+  while(includedOrders.size()<num_of_orders){
+    int orderIndex = rand(0,num_of_orders-1);
+    while(includedOrders.find(orderIndex)!=includedOrders.end()){
+      orderIndex++;
+      if(orderIndex==num_of_orders)orderIndex = 0;
+    }
+    if(allOrders[orderIndex].items.size() + currBatchItems <= max_capacity_robot){
+      currBatchItems+=allOrders[orderIndex].items.size();
+      currBatch.push_back(orderIndex);
+    }
+    else{
+      batches.push_back(currBatch);
+      currBatch.clear();
+      currBatchItems = allOrders[orderIndex].items.size();
+      currBatch.push_back(orderIndex);
+    }
+    includedOrders.insert(orderIndex);
+  }
+  if(currBatchItems>0)batches.push_back(currBatch);
+  return batches;
+}
+
+void fill_item_sequence(struct genotype& member){
+  member.itemSequence.clear();
+  member.itemSequence = vector<vector<int>>(member.gene.size());
+  for(int i = 0 ; i < member.gene.size() ; ++i){
+    for(auto & currOrderIndex : member.gene[i]){
+      for(auto & currItem : allOrders[currOrderIndex].items){
+        member.itemSequence[i].push_back(currItem);
+      }
+    }
+  }
+}
