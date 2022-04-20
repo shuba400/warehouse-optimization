@@ -2,7 +2,7 @@
 #pragma GCC optimize("Ofast")
 #include<bits/stdc++.h>
 using namespace std;
-
+#define hola    cout<<"Working till here"<<endl;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 template<class T>
 T rand(T a, T b) {
@@ -104,9 +104,11 @@ void take_input(){
     }    
 }
 
+#include "tsp_variants.h"
 #include "order_catering_functions.h"
+#include "merging_variants.h"
 
-# define POPSIZE 1200
+# define POPSIZE 2000
 # define MAXGENS 100
 # define PMUTATION 0.4
 struct genotype
@@ -127,17 +129,28 @@ int main ( )
     int t;
     cin>>t;
     take_input();
+    cout<<"num of orders : "<<num_of_orders<<endl;
     cout<<"Genetic New Model\n"<<endl;
     initialize (  );
+    for(auto &member:population)
+        member.fitness=get_fitness(member);
+    cout<<"Population0 : ";
+    cout<<(1)/(velocity*population[0].fitness)<<endl;
+    cout<<"Population1 : ";
+    cout<<(1)/(velocity*population[1].fitness)<<endl;
+    cout<<endl;
+    population[1] = get_random_member();
+    report(0);
     for (int generation = 1; generation <=MAXGENS; generation++ )
     {
-      // evaluating fitness value of all population
-      for(auto &member:population)
-        member.fitness=get_fitness(member);
-      if(generation==1){
-          report(0);
-      }
       vector<pair<int,int>>parent_pairs=select_parent_pairs(POPSIZE/2);
+    //   int z = 0.1*POPSIZE;
+    //   for(int i = 0 ; i < z ; ++i){
+    //       parent_pairs.pop_back();
+    //   }
+    //   for(int i = 0 ;  i < z ; ++i){
+    //       parent_pairs.push_back({0,1 + rand()%40});
+    //   }
       vector<genotype>children;
       for(auto &it:parent_pairs)
       {
@@ -149,20 +162,18 @@ int main ( )
       for(auto &child:children)
       {
         mutate_member(child);
+        child.fitness=get_fitness(child);
         new_population.push_back(child);
       }
       for(int i=0;i<0.2*POPSIZE;i++)
       {
-        genotype random_child;
-        random_child.gene=random_batching();
-        fill_item_sequence(random_child);
-        new_population.push_back(random_child);
+        genotype random_member=get_random_member();
+        random_member.fitness=get_fitness(random_member);
+        new_population.push_back(random_member);
       }
-      for(auto &member:new_population)
-        member.fitness=get_fitness(member);
       keep_the_best(new_population);
       report ( generation);
     }
-
+    
     return 0;
 }

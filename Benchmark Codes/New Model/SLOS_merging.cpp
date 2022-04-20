@@ -92,6 +92,10 @@ void take_input(){
     }    
 }
 
+bool compOrdersAscSize(Order &order1,Order &order2)
+{
+    return order1.getOrderSize()<order2.getOrderSize();
+}
 bool compOrdersDescSize(Order &order1,Order &order2)
 {
     return order1.getOrderSize()>order2.getOrderSize();
@@ -125,107 +129,17 @@ void dsu_merge(int o1,int o2,vector<int>&orderParent,vector<Order>&orderList)
     orderParent[rooto2]=rooto1;
     orderList[rooto1]=mergeTwoOrders(orderList[rooto1],orderList[rooto2]);
 }
-// Iterates over all orders and greedily merges the largest possible order into current order
-vector<Order> greedyMergeOrdersSize(vector<Order>orderList)  
-{
-    int n=orderList.size();
-    vector<int>orderParent(n);
-    iota(orderParent.begin(),orderParent.end(),0);
-    sort(orderList.begin(),orderList.end(),compOrdersDescSize);    
-    
-    set<pair<int,int>>sizeSet;   //stores {orderSize,orderIndex}
-    for(int i=0;i<n;i++)
-        sizeSet.insert({orderList[i].getOrderSize(),i});
 
-    for(int i=0;i<n;i++)
-    {
-        if(dsu_find(i,orderParent)!=i)
-            continue;
-        while(1)
-        {
-            int curOrderIndex=dsu_find(i,orderParent);
-            int curOrderSize=orderList[curOrderIndex].getOrderSize();
-            sizeSet.erase({curOrderSize,curOrderIndex});
-
-            pair<int,int>tempPair={max_capacity_robot-curOrderSize,inf};
-            auto it=sizeSet.upper_bound(tempPair);
-            if(sizeSet.empty()||it==sizeSet.begin())
-            {
-                sizeSet.insert({curOrderSize,curOrderIndex});
-                break;
-            }
-            it--;
-            int partnerOrderIndex=(*it).second;
-            int partnerOrderSize=orderList[partnerOrderIndex].getOrderSize();
-
-            dsu_merge(curOrderIndex,partnerOrderIndex,orderParent,orderList);
-            int newOrderIndex=dsu_find(curOrderIndex,orderParent);
-            int newOrderSize=orderList[newOrderIndex].getOrderSize();
-
-            sizeSet.erase({partnerOrderSize,partnerOrderIndex});
-            sizeSet.insert({newOrderSize,newOrderIndex});
-        }
-    }
-    vector<Order>mergedOrders;
-    for(int i=0;i<n;i++)
-    {
-        if(dsu_find(i,orderParent)==i)
-            mergedOrders.push_back(orderList[i]);
-    }
-    return mergedOrders;
-}
-
-pair<int,vector<pair<int,Cell>>> nearest_neighbour_TSP(vector<int>items)
-{
-    int n=items.size();
-    int time=0;
-    // path[i] = {item id , cell for the item id}
-    vector<pair<int,Cell>>path;
-    vector<bool>isItemVisited(n,false);
-    Cell currentCell={0,0};
-    while(path.size()<n)
-    {
-        int nextItem;
-        Cell nextCell;
-        int nextDistance=inf;
-        for(int i=0;i<n;i++)
-        {
-            if(isItemVisited[i]==true)
-                continue;
-            Cell bestCell;
-            int bestDistance=inf;
-            for(auto &cell:allItems[items[i]].cells)
-            {
-                if(distance(currentCell,cell)<bestDistance)
-                {
-                    bestDistance=distance(currentCell,cell);
-                    bestCell=cell;
-                }
-            }
-            if(bestDistance<nextDistance)
-            {
-                nextDistance=bestDistance;
-                nextCell=bestCell;
-                nextItem=i;
-            }
-        }
-        isItemVisited[nextItem] = true;
-        path.push_back({items[nextItem],nextCell});
-        currentCell=nextCell;
-        time+=nextDistance;
-    }
-    time+=distance(currentCell,{0,0});
-    time+=n*docking_time;
-    return {time,path};
-}
+#include "TSP_variants.h"
+#include "Merging_variants.h"
 
 // Returns time taken to cater all orders by all robots
 pair<int,vector<vector<int>>> caterAllOrders()
 {   
     vector<Order>mergedOrders=allOrders;
     cout<<"Number of Orders (Initially) : \n"<<mergedOrders.size()<<endl;
-    mergedOrders=greedyMergeOrdersSize(mergedOrders);
-    cout<<"Number of Orders (After Greedy_Merging_Size) : \n"<<mergedOrders.size()<<endl;
+    mergedOrders=SLOS_merge(mergedOrders);
+    cout<<"Number of Orders (After SLOS_Merging) : \n"<<mergedOrders.size()<<endl;
 
     for(int i = 0; i < mergedOrders.size(); i++)
     {
@@ -269,7 +183,7 @@ pair<int,vector<vector<int>>> caterAllOrders()
 void cal_for_given_test(){
     take_input();
     
-    cout<<"----nearest_neighbour_tsp:----"<<endl;
+    cout<<"----SLOS_Merging:----"<<endl;
     clock_t tStart=clock();
 
     pair<int,vector<vector<int>>> cateringData = caterAllOrders();

@@ -1,23 +1,15 @@
 double get_fitness(genotype &member)
 {
-    double fitness=1.0/caterAllOrders(getOrderVector(member.gene)).first;
+    double fitness=1.0/caterAllOrders(member.itemSequence).first;
     return fitness;
 }
 
 void initialize ( )
 {
-  map<vector<vector<int>>,int>alreadyIncluded;
-  population[0].gene = populate_by_GreedyOnly();
-  alreadyIncluded[population[0].gene]++;
-  for(int i = 1 ; i < POPSIZE ; ++i){
-    population[i].gene = random_batching();
-    int iteration_limit=1000;
-    while(alreadyIncluded.find(population[i].gene)!=alreadyIncluded.end()&&(iteration_limit--))
-        population[i].gene = random_batching();
-    alreadyIncluded[population[i].gene]++;
-  }
-  for(int i = 0 ; i<POPSIZE ; ++i)
-    fill_item_sequence(population[i]);
+  population[0]=get_greedy_merged_member();
+  population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
+  for(int i = 2 ; i < POPSIZE ; ++i)
+    population[i]= get_random_member();
 }
 
 int roulette_wheel_selection(vector<double>&probability)
@@ -302,7 +294,8 @@ void report ( int generation )
             best_fitness=population[i].fitness;
         }
     }
-    double catering_time=caterAllOrders(getOrderVector(population[best_fitness].gene)).first;
+    // double catering_time=caterAllOrders(getOrderVector(population[best_fitness].gene)).first;
+    double catering_time = 1/best_fitness;
     catering_time=(catering_time*1.0)/velocity;
     cout<<"Generation "<<generation<<"  ---->  "<<catering_time<<" mins\n";
 }
