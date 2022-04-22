@@ -37,10 +37,6 @@ pair<int,vector<pair<int,Cell>>> nearest_neighbour_TSP(vector<int>items)
         currentCell=nextCell;
         time+=nextDistance;
     }
-    for(auto & x : path){
-        cout<<x<<" ";
-    }
-    exit(0);
     time+=distance(currentCell,{0,0});
     time+=n*docking_time;
     return {time,path};

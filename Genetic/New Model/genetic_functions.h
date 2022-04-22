@@ -7,8 +7,8 @@ double get_fitness(genotype &member)
 void initialize ( )
 {
   population[0]=get_greedy_merged_member();
-  population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
-  for(int i = 2 ; i < POPSIZE ; ++i)
+//   population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
+  for(int i = 1 ; i < POPSIZE ; ++i)
     population[i]= get_random_member();
 }
 
@@ -198,7 +198,7 @@ void mutate_item_sequence(genotype &member){
     }
 }
 
-void mutate_member(genotype &member){
+void mutate_batching(genotype &member){
   struct genotype parent = member;
   int n = parent.gene.size();
   int b1 = rand()%n;
@@ -270,7 +270,6 @@ void mutate_member(genotype &member){
       }
   }
   member = mutant_parent;
-  mutate_item_sequence(member);
 }
 
 void keep_the_best(vector<genotype>&new_population)
@@ -297,5 +296,5 @@ void report ( int generation )
     // double catering_time=caterAllOrders(getOrderVector(population[best_fitness].gene)).first;
     double catering_time = 1/best_fitness;
     catering_time=(catering_time*1.0)/velocity;
-    cout<<"Generation "<<generation<<"  ---->  "<<catering_time<<" mins\n";
+    cout<<"Generation "<<generation<<"  ---->  "<<catering_time/60<<" hrs\n";
 }

@@ -118,3 +118,26 @@ double r8_uniform_ab ( double a, double b )
 
   return value;
 }
+
+void timestamp ( )
+//  Purpose:
+//    TIMESTAMP prints the current YMDHMS date as a time stamp.
+//  Example:
+//    May 31 2001 09:45:54 AM
+{
+# define TIME_SIZE 40
+
+  static char time_buffer[TIME_SIZE];
+  const struct tm *tm;
+  time_t now;
+
+  now = time ( NULL );
+  tm = localtime ( &now );
+
+  strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm );
+
+  cout << time_buffer << "\n";
+
+  return;
+# undef TIME_SIZE
+}

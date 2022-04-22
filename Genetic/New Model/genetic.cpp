@@ -2,7 +2,7 @@
 #pragma GCC optimize("Ofast")
 #include<bits/stdc++.h>
 using namespace std;
-#define hola    cout<<"Working till here"<<endl;
+#include<time.h>
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 template<class T>
 T rand(T a, T b) {
@@ -108,9 +108,11 @@ void take_input(){
 #include "order_catering_functions.h"
 #include "merging_variants.h"
 
-# define POPSIZE 2000
-# define MAXGENS 100
-# define PMUTATION 0.4
+int POPSIZE;
+int MAXGENS;
+double PMUTATION_BATCHING;
+double PMUTATION_ITEM_SEQUENCE;
+
 struct genotype
 {
   vector<vector<int>>gene;
@@ -118,7 +120,7 @@ struct genotype
   double fitness;
 };
 
-vector<genotype>population(POPSIZE);
+vector<genotype>population;
 
 #include "initial_population.h"
 #include "genetic_functions.h"
@@ -129,20 +131,36 @@ int main ( )
     int t;
     cin>>t;
     take_input();
-    cout<<"num of orders : "<<num_of_orders<<endl;
-    cout<<"Genetic New Model\n"<<endl;
+
+    POPSIZE = 4*num_of_orders;
+    MAXGENS=30;
+    PMUTATION_BATCHING=0.5;
+    PMUTATION_ITEM_SEQUENCE=0.5;
+    population.clear();
+    population.resize(POPSIZE);
+
+    timestamp();
+    cout<<"Genetic New Model\n\n";
+    clock_t tStart_main=clock();
+    cout<<"Number of orders: "<<num_of_orders<<"\n";  
+    cout<<"Population Size: "<<POPSIZE<<"\n";
+    cout<<"Number of generations: "<<MAXGENS<<"\n";
+    cout<<"\n";
+
     initialize (  );
     for(auto &member:population)
         member.fitness=get_fitness(member);
-    cout<<"Population0 : ";
-    cout<<(1)/(velocity*population[0].fitness)<<endl;
-    cout<<"Population1 : ";
-    cout<<(1)/(velocity*population[1].fitness)<<endl;
-    cout<<endl;
-    population[1] = get_random_member();
-    report(0);
+    report(0); 
+    cout<<"Initial Population Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n";    
+    cout<<"Greedy Merging Member: ";
+    cout<<(1)/(60*velocity*population[0].fitness)<<"  hrs\n";
+    // cout<<"Greedy Merging and Nearest Neighbour TSP Member: ";
+    // cout<<(1)/(60*velocity*population[1].fitness)<<"  hrs\n";
+    cout<<"\n";
+       
     for (int generation = 1; generation <=MAXGENS; generation++ )
     {
+      clock_t tStart=clock();
       vector<pair<int,int>>parent_pairs=select_parent_pairs(POPSIZE/2);
     //   int z = 0.1*POPSIZE;
     //   for(int i = 0 ; i < z ; ++i){
@@ -161,9 +179,14 @@ int main ( )
       vector<genotype>new_population=population;
       for(auto &child:children)
       {
-        mutate_member(child);
-        child.fitness=get_fitness(child);
-        new_population.push_back(child);
+          double rand=r8_uniform_ab(0.0,1.0);
+          if(rand<PMUTATION_BATCHING)
+            mutate_batching(child);
+          rand=r8_uniform_ab(0.0,1.0);
+          if(rand<PMUTATION_ITEM_SEQUENCE)
+            mutate_item_sequence(child);
+          child.fitness=get_fitness(child);
+          new_population.push_back(child);
       }
       for(int i=0;i<0.2*POPSIZE;i++)
       {
@@ -173,7 +196,21 @@ int main ( )
       }
       keep_the_best(new_population);
       report ( generation);
+      cout<<"Computation Time: "<<((double)(clock()-tStart)/CLOCKS_PER_SEC)/60<<" mins\n\n";
     }
     
+    genotype final_member=population[0];
+    for(auto &currItemSequence:final_member.itemSequence)
+    {
+        pair<int,vector<pair<int,Cell>>>temp=optimal_TSP(currItemSequence);
+        currItemSequence.clear();
+        for(auto &it:temp.second)
+            currItemSequence.push_back(it.first);
+    }
+
+    final_member.fitness=get_fitness(final_member);
+    double final_catering_time=1/(velocity*final_member.fitness);
+    cout<<"Final Catering Time: "<<final_catering_time/60<<" hrs\n";
+    cout<<"Total Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n";
     return 0;
 }
