@@ -133,7 +133,7 @@ int main ( )
     take_input();
 
     POPSIZE = 4*num_of_orders;
-    MAXGENS = 2;
+    MAXGENS = 15;
     PMUTATION_BATCHING = 0.5;
     PMUTATION_ITEM_SEQUENCE = 0.5;
     population.clear();
@@ -154,21 +154,14 @@ int main ( )
     cout<<"Initial Population Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n";    
     cout<<"Greedy Merging Member: ";
     cout<<(1)/(60*velocity*population[0].fitness)<<"  hrs\n";
-    cout<<"Greedy Merging and Nearest Neighbour TSP Member: ";
-    cout<<(1)/(60*velocity*population[1].fitness)<<"  hrs\n";
+    // cout<<"Greedy Merging and Nearest Neighbour TSP Member: ";
+    // cout<<(1)/(60*velocity*population[1].fitness)<<"  hrs\n";
     cout<<"\n";
 
     for (int generation = 1; generation <=MAXGENS; generation++ )
     {
       clock_t tStart=clock();
       vector<pair<int,int>>parent_pairs=select_parent_pairs(POPSIZE/2);
-    //   int z = 0.1*POPSIZE;
-    //   for(int i = 0 ; i < z ; ++i){
-    //       parent_pairs.pop_back();
-    //   }
-    //   for(int i = 0 ;  i < z ; ++i){
-    //       parent_pairs.push_back({0,1 + rand()%40});
-    //   }
       vector<genotype>children;
       for(auto &it:parent_pairs)
       {

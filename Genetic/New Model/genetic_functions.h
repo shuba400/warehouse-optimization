@@ -7,12 +7,12 @@ double get_fitness(genotype &member)
 void initialize ( )
 {
   population[0]=get_greedy_merged_member();
-  population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
-  for(int i = 2 ; i < POPSIZE ; ++i)
+//   population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
+  for(int i = 1 ; i < POPSIZE ; ++i)
     population[i]= get_random_member();
 }
 
-int roulette_wheel_selection(vector<double>&probability)
+int roulette_wheel_selection(vector<pair<double,int>>&probability)
 {
     int n=probability.size();
     double rand=r8_uniform_ab(0.0,1.0);
@@ -21,31 +21,45 @@ int roulette_wheel_selection(vector<double>&probability)
     while(lo<hi)
     {
         int mid=(lo+hi+1)/2;
-        if(rand<=probability[mid])
+        if(rand<=probability[mid].first)
             lo=mid;
         else
             hi=mid-1;
     }
-    return lo;
+    return probability[lo].second;
 }
 
 vector<pair<int,int>> select_parent_pairs(int numParents)
 {
     vector<pair<int,int>>parents;
-    double sum=0;
+    double TOP=0.1;
+    int num_top=TOP*POPSIZE;
+    double sum_top=0,sum_bottom=0;
+    vector<pair<double,int>>probability_top,probability_bottom;
+
     for(int i=0;i<POPSIZE;i++)
-        sum+=population[i].fitness;
-    vector<double>probability(POPSIZE);
+    {
+        if(i<num_top)
+            sum_top+=population[i].fitness;
+        else
+            sum_bottom+=population[i].fitness;
+    }
     for(int i=0;i<POPSIZE;i++)
-        probability[i]=population[i].fitness/sum;
-    for(int i=1;i<POPSIZE;i++)
-        probability[i]+=probability[i-1];
+    {
+        if(i<num_top)
+            probability_top.push_back({population[i].fitness/sum_top,i});
+        else
+            probability_bottom.push_back({population[i].fitness/sum_bottom,i});
+    }
+    for(int i=1;i<probability_top.size();i++)
+        probability_top[i].first+=probability_top[i-1].first;
+    for(int i=1;i<probability_bottom.size();i++)
+        probability_bottom[i].first+=probability_bottom[i-1].first;
+
     for(int i=0;i<numParents;i++)
     {
-        int parent1=roulette_wheel_selection(probability);
-        int parent2=roulette_wheel_selection(probability);
-        while(parent2==parent1)
-            parent2=roulette_wheel_selection(probability);
+        int parent1=roulette_wheel_selection(probability_top);
+        int parent2=roulette_wheel_selection(probability_bottom);
         parents.push_back({parent1,parent2});
     }
     return parents;
