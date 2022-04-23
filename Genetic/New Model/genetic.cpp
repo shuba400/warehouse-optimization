@@ -133,9 +133,9 @@ int main ( )
     take_input();
 
     POPSIZE = 4*num_of_orders;
-    MAXGENS=30;
-    PMUTATION_BATCHING=0.5;
-    PMUTATION_ITEM_SEQUENCE=0.5;
+    MAXGENS = 2;
+    PMUTATION_BATCHING = 0.5;
+    PMUTATION_ITEM_SEQUENCE = 0.5;
     population.clear();
     population.resize(POPSIZE);
 
@@ -154,10 +154,10 @@ int main ( )
     cout<<"Initial Population Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n";    
     cout<<"Greedy Merging Member: ";
     cout<<(1)/(60*velocity*population[0].fitness)<<"  hrs\n";
-    // cout<<"Greedy Merging and Nearest Neighbour TSP Member: ";
-    // cout<<(1)/(60*velocity*population[1].fitness)<<"  hrs\n";
+    cout<<"Greedy Merging and Nearest Neighbour TSP Member: ";
+    cout<<(1)/(60*velocity*population[1].fitness)<<"  hrs\n";
     cout<<"\n";
-       
+
     for (int generation = 1; generation <=MAXGENS; generation++ )
     {
       clock_t tStart=clock();

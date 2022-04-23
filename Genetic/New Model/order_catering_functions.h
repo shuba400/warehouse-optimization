@@ -3,7 +3,7 @@ pair<int,vector<vector<int>>> caterAllOrders(vector<vector<int>>itemSequences){
 
     vector<int>cateringTimes;
     for(int i = 0; i < itemSequences.size(); i++)
-        cateringTimes.push_back(ordinary_TSP(itemSequences[i]));
+        cateringTimes.push_back(ordinary_TSP(itemSequences[i]).first);
     sort(cateringTimes.begin(),cateringTimes.end(),greater<int>());
 
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>robotFreeTimes;
@@ -32,4 +32,3 @@ pair<int,vector<vector<int>>> caterAllOrders(vector<vector<int>>itemSequences){
     }
     return {totalTime,robotTasks};
 }
-

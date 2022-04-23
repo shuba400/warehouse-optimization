@@ -42,30 +42,32 @@ pair<int,vector<pair<int,Cell>>> nearest_neighbour_TSP(vector<int>items)
     return {time,path};
 }
 
-int ordinary_TSP(vector<int>item_numbers)
-{
-    vector<Item>items;
+pair<int,vector<pair<int,Cell>>> ordinary_TSP(vector<int> arr){ //takes item index (index in that was being used in main item vector)
+    vector<Item> a;
     Item tmp;
     tmp.cells.push_back({0,0});
-    items.push_back(tmp);
-    for(auto &x:item_numbers){
+    a.push_back(tmp);
+    for(auto &x:arr){
         tmp.cells.clear();
         for(auto &c:allItems[x].cells){
             tmp.cells.push_back(c);
         } 
-        items.push_back(tmp);
+        a.push_back(tmp);
     }
-    int n = items.size();
-    vector<vector<int>> dp(n + 1,vector<int>(max_cells_in_item+1,inf));
+    tmp.cells.clear();
+    tmp.cells.push_back({0,0});
+    a.push_back(tmp);
+    int n = a.size();
+    vector<vector<int>> dp(n + 1,vector<int>(6+1,inf));
     dp[0][0] = 0;
     for(int i= 1; i < n; i++){
-        for(int j = 0; j < items[i].cells.size(); j++){
-            for(int k = 0; k < items[i - 1].cells.size(); k++){
-                dp[i][j] = min(dp[i][j],distance(items[i].cells[j],items[i - 1].cells[k]) + dp[i - 1][k]);
+        for(int j = 0; j < a[i].cells.size(); j++){
+            for(int k = 0; k < a[i - 1].cells.size(); k++){
+                dp[i][j] = min(dp[i][j],distance(a[i].cells[j],a[i - 1].cells[k]) + dp[i - 1][k]);
             }
         }
     }
-    return *min_element(dp[n - 1].begin(),dp[n - 1].end())+n*docking_time;
+    return {*min_element(dp[n - 1].begin(),dp[n - 1].end())+arr.size()*docking_time,{{1,{}}}};
 }
 
 int recur(int mask,int curr_element,int curr_index,vector<vector<vector<vector<int>>>>&dp,vector<Item>&a,int tot_elements){

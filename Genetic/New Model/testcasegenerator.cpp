@@ -58,11 +58,11 @@ T rand() {
 
 const int max_docking_time = 12;        
 const int max_number_robots = 5;      
-const int max_number_order = 100;   
+const int max_number_order = 500;   
 const int max_order_size = 5;
 const double max_velocity = 80.4672;  // metre/min
-const int capacity_of_robot = 5;  
-const int max_number_of_total_items = 1000;
+const int capacity_of_robot = 10;  
+const int max_number_of_total_items = 5000;
 const int max_cells_in_item = 5;  
 
 

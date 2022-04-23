@@ -7,8 +7,8 @@ double get_fitness(genotype &member)
 void initialize ( )
 {
   population[0]=get_greedy_merged_member();
-//   population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
-  for(int i = 1 ; i < POPSIZE ; ++i)
+  population[1]=get_greedy_merged_nearest_negihbour_tsp_member();
+  for(int i = 2 ; i < POPSIZE ; ++i)
     population[i]= get_random_member();
 }
 
@@ -297,4 +297,43 @@ void report ( int generation )
     double catering_time = 1/best_fitness;
     catering_time=(catering_time*1.0)/velocity;
     cout<<"Generation "<<generation<<"  ---->  "<<catering_time/60<<" hrs\n";
+}
+
+int is_member_valid(genotype member)
+{
+    vector<int>freq(num_of_orders,0);
+    int ctr=0;
+    for(auto &itv:member.gene)
+    {
+        for(auto &it:itv)
+        {
+            ctr++;
+            freq[it]++;
+        }
+    }
+    if(ctr!=num_of_orders)
+        return -1;
+    for(auto &it:freq)
+    {
+        if(it!=1)
+            return -2;
+    }
+    if(member.gene.size()!=member.itemSequence.size())
+        return -3;
+    for(int i=0;i<member.gene.size();i++)
+    {
+        if(member.itemSequence[i].size()>max_capacity_robot)
+            return -4;
+        map<int,int>mp1,mp2;
+        for(auto &it:member.gene[i])
+        {
+            for(auto &item:allOrders[it].items)
+                mp1[item]++;
+        }
+        for(auto &it:member.itemSequence[i])
+            mp2[it]++;
+        if(mp1!=mp2)
+            return -5;
+    }
+    return 1;
 }
