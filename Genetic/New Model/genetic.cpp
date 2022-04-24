@@ -12,6 +12,11 @@ template<class T>
 T rand() {
     return uniform_int_distribution<T>()(rng);
 }
+vector<int> get_random(vector<int> permutation){
+    mt19937 new_rng(uniform_int_distribution<int>()(rng));
+    shuffle(permutation.begin(), permutation.end(), new_rng);
+    return permutation;
+}
 const int inf = 1e9;
 int seed=12345678;
 #include "random_values.h"
@@ -133,7 +138,7 @@ int main ( )
     take_input();
 
     POPSIZE = 4*num_of_orders;
-    MAXGENS = 15;
+    MAXGENS = 30;
     PMUTATION_BATCHING = 0.5;
     PMUTATION_ITEM_SEQUENCE = 0.5;
     population.clear();
@@ -148,15 +153,8 @@ int main ( )
     cout<<"\n";
 
     initialize (  );
-    for(auto &member:population)
-        member.fitness=get_fitness(member);
     report(0); 
-    cout<<"Initial Population Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n";    
-    cout<<"Greedy Merging Member: ";
-    cout<<(1)/(60*velocity*population[0].fitness)<<"  hrs\n";
-    // cout<<"Greedy Merging and Nearest Neighbour TSP Member: ";
-    // cout<<(1)/(60*velocity*population[1].fitness)<<"  hrs\n";
-    cout<<"\n";
+    cout<<"Initial Population Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n\n";    
 
     for (int generation = 1; generation <=MAXGENS; generation++ )
     {
@@ -183,7 +181,7 @@ int main ( )
       }
       for(int i=0;i<0.2*POPSIZE;i++)
       {
-        genotype random_member=get_random_member();
+        genotype random_member=get_random_merged_random_tsp_member();
         random_member.fitness=get_fitness(random_member);
         new_population.push_back(random_member);
       }
