@@ -153,6 +153,7 @@ int main ( )
     cout<<"\n";
 
     initialize (  );
+    double initial_best_catering_time=1/(velocity*population[0].fitness);
     report(0); 
     cout<<"Initial Population Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n\n";    
 
@@ -191,6 +192,8 @@ int main ( )
     }
     
     genotype final_member=population[0];
+    double final_catering_time1=1/(velocity*final_member.fitness);
+    double improvement_genetic=((initial_best_catering_time-final_catering_time1)/initial_best_catering_time)*100;
     for(auto &currItemSequence:final_member.itemSequence)
     {
         pair<int,vector<pair<int,Cell>>>temp=optimal_TSP(currItemSequence);
@@ -200,8 +203,11 @@ int main ( )
     }
 
     final_member.fitness=get_fitness(final_member);
-    double final_catering_time=1/(velocity*final_member.fitness);
-    cout<<"Final Catering Time: "<<final_catering_time/60<<" hrs\n";
+    double final_catering_time2=1/(velocity*final_member.fitness);
+    double improvement_post_processing=((final_catering_time1-final_catering_time2)/final_catering_time1)*100;
+    cout<<"Final Catering Time: "<<final_catering_time2/60<<" hrs\n";
+    cout<<"Percentage Improvement due to Genetic: "<<improvement_genetic<<" %\n";
+    cout<<"Percentage Improvement due to Post Processing: "<<improvement_post_processing<<" %\n";
     cout<<"Total Computation Time: "<<((double)(clock()-tStart_main)/CLOCKS_PER_SEC)/60<<" mins\n";
     return 0;
 }

@@ -8,25 +8,25 @@ void initialize ( )
 {
   population.clear();
 
-  population.push_back(get_random_merged_nn_tsp_member());
-  population.back().fitness=get_fitness(population.back());
-  cout<<"Random Merging NN TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+//   population.push_back(get_random_merged_nn_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"Random Merging NN TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
   
-  population.push_back(get_random_merged_optimal_tsp_member());
-  population.back().fitness=get_fitness(population.back());
-  cout<<"Random Merging Optimal TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+//   population.push_back(get_random_merged_optimal_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"Random Merging Optimal TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
 
   population.push_back(get_greedy_merged_random_tsp_member());
   population.back().fitness=get_fitness(population.back());
   cout<<"Greedy Merging Random TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
   
-  population.push_back(get_greedy_merged_nn_tsp_member());
-  population.back().fitness=get_fitness(population.back());
-  cout<<"Greedy Merging NN TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+//   population.push_back(get_greedy_merged_nn_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"Greedy Merging NN TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
 
-  population.push_back(get_greedy_merged_optimal_tsp_member());
-  population.back().fitness=get_fitness(population.back());
-  cout<<"Greedy Merging Optimal TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+//   population.push_back(get_greedy_merged_optimal_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"Greedy Merging Optimal TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
   
   cout<<"\n";
   while(population.size()<POPSIZE)
@@ -34,6 +34,10 @@ void initialize ( )
     population.push_back(get_random_merged_random_tsp_member());
     population.back().fitness=get_fitness(population.back());
   }
+
+  sort(population.begin(),population.end(),[](const struct genotype& a, const struct genotype& b)->bool{
+        return a.fitness>b.fitness;
+    });
 }
 
 int roulette_wheel_selection(vector<pair<double,int>>&probability)
