@@ -1,4 +1,47 @@
 # TSP Variants
+
+
+### Nearest Neigbour
+
+```python
+Function nearest_neighbour_TSP(items)
+{
+    n ← items.size()
+    time ← 0
+    path ← {} // path[i] = {item id , cell for the item id}
+    isItemVisited ← {false}
+    currentCell ← {0,0}
+    while path.size() < n
+        nextItem ← 0
+        nextCell ← {}
+        nextDistance ← infinity
+        for i = 0 to n:
+            if isItemVisited[i] == true
+                continue
+            bestCell ← {}
+            bestDistance ← inf
+            for each cell of allItems[items[i]].cells)
+                if distance(currentCell,cell)< bestDistance
+                    bestDistance ← distance(currentCell,cell)
+                    bestCell ← cell
+            if bestDistance < nextDistance
+                nextDistance ← bestDistance
+                nextCell ← bestCell
+                nextItem ← i
+            Endfor
+            
+        isItemVisited[nextItem] ← true
+        path.push({items[nextItem],nextCell})
+        currentCell ← nextCell
+        time += nextDistance
+    }
+    time += distance(currentCell,{0,0})
+    time += n*docking_time
+    return time,path
+}
+```
+
+
 ## Optimal TSP
 ```python
 /*
