@@ -42,6 +42,30 @@ Function nearest_neighbour_TSP(items)
 ```
 
 
+### Ordinary TSP
+```python
+Function ordinary_TSP(items_index){ //takes item index (index in that was being used in main item vector)
+    items ← {}
+    items.push(0,0)
+    for each index of item_index
+        item.push(allCell(allItems[index]))
+    Endfor
+    items.push(0,0)
+    n ← items.size();
+    dp ← [n + 1][6] 
+    dp[0][0] = 0;
+    for i = 1 to n:
+        for j = 0 to items[i].cells.size():
+            for k = 0 to items[i - 1].cells.size():
+                dp[i][j] ← min(dp[i][j],distance(items[i].cells[j],items[i - 1].cells[k]) + dp[i - 1][k]);
+            Endfor
+        Endfor
+    Endfor
+   return min_element(dp[n - 1])
+}
+```
+
+
 ## Optimal TSP
 ```python
 /*
