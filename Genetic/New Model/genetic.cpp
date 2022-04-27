@@ -150,6 +150,8 @@ int main ( )
     cout<<"Number of orders: "<<num_of_orders<<"\n";  
     cout<<"Population Size: "<<POPSIZE<<"\n";
     cout<<"Number of generations: "<<MAXGENS<<"\n";
+    cout<<"Number of robots: "<<num_of_robots<<"\n";
+    cout<<"Number of unique items in warehouse: "<<allItems.size()<<"\n";
     cout<<"\n";
 
     initialize (  );
@@ -192,7 +194,7 @@ int main ( )
     }
     
     genotype final_member=population[0];
-    double final_catering_time1=1/(velocity*final_member.fitness);
+    double final_catering_time1=1/(velocity*population[0].fitness);
     double improvement_genetic=((initial_best_catering_time-final_catering_time1)/initial_best_catering_time)*100;
     for(auto &currItemSequence:final_member.itemSequence)
     {
@@ -202,8 +204,7 @@ int main ( )
             currItemSequence.push_back(it.first);
     }
 
-    final_member.fitness=get_fitness(final_member);
-    double final_catering_time2=1/(velocity*final_member.fitness);
+    double final_catering_time2=caterAllOrders(final_member.itemSequence).first/(velocity);
     double improvement_post_processing=((final_catering_time1-final_catering_time2)/final_catering_time1)*100;
     cout<<"Final Catering Time: "<<final_catering_time2/60<<" hrs\n";
     cout<<"Percentage Improvement due to Genetic: "<<improvement_genetic<<" %\n";

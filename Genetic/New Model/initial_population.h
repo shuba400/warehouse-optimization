@@ -161,3 +161,20 @@ genotype get_random_merged_optimal_tsp_member(){
   return member;
 }
 
+genotype get_cw1_merged_random_tsp_member(){
+    genotype member;
+    vector<Order>mergedOrders=allOrders;
+    mergedOrders=CW1_merge(mergedOrders);
+    for(auto &m:mergedOrders) member.gene.push_back(m.subOrderIndexes);
+    fill_item_sequence(member);
+    return member;
+}
+
+genotype get_cw2_merged_random_tsp_member(){
+    genotype member;
+    vector<Order>mergedOrders=allOrders;
+    mergedOrders=CW2_merge(mergedOrders);
+    for(auto &m:mergedOrders) member.gene.push_back(m.subOrderIndexes);
+    fill_item_sequence(member);
+    return member;
+}

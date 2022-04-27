@@ -16,9 +16,9 @@ void initialize ( )
 //   population.back().fitness=get_fitness(population.back());
 //   cout<<"Random Merging Optimal TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
 
-  population.push_back(get_greedy_merged_random_tsp_member());
-  population.back().fitness=get_fitness(population.back());
-  cout<<"Greedy Merging Random TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+//   population.push_back(get_greedy_merged_random_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"Greedy Merging Random TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
   
 //   population.push_back(get_greedy_merged_nn_tsp_member());
 //   population.back().fitness=get_fitness(population.back());
@@ -27,6 +27,14 @@ void initialize ( )
 //   population.push_back(get_greedy_merged_optimal_tsp_member());
 //   population.back().fitness=get_fitness(population.back());
 //   cout<<"Greedy Merging Optimal TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+
+//   population.push_back(get_cw1_merged_random_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"CW1 Merging Random TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
+
+//   population.push_back(get_cw2_merged_random_tsp_member());
+//   population.back().fitness=get_fitness(population.back());
+//   cout<<"CW2 Merging Random TSP Member: "<<(1)/(60*velocity*population.back().fitness)<<"  hrs\n";
   
   cout<<"\n";
   while(population.size()<POPSIZE)
