@@ -62,10 +62,10 @@ Function initialize()
     
     # To generate a member, select one of the merging options and apply it on all_orders to get the batches.
     # Then select one of the item sequence options and apply it on each batch to get the item_sequences.
-    population ← generate_member(merging_option,item_sequence_option)
+    population ← Pushback generate_member(merging_option,item_sequence_option)
     
-    while population.size() < POPSIZE
-        population ← generate_member(random_merging,random_item_sequence)
+    While population.size() < POPSIZE
+        population ← Pushback generate_member(random_merging,random_item_sequence)
     
     Sort population in descending order of fitness
 ```
@@ -74,9 +74,23 @@ Function initialize()
 ```python
 Function get_fitness(member)
     fitness ← 1 / cater_batch(member.item_sequences)
-    return fitness
+    Return fitness
 
 Function cater_batch(item_sequences)
+    catering_times ← {}
+    For each item_sequence in item_sequences
+        catering_times ← Pushback time from TSP(item_sequence)
+    Sort catering_times in descending order
+    
+    Assign each robot earliest_free_time=0
+    Priority_Queue: q ← Push all robots sorted in ascending order of earliest_free_time
+    final_catering_time ← 0
+    
+    For each catering_time in catering_times
+        earliest_free_robot ← Top robot in q
+        finish_time ← earliest_free_robot.earliest_free_time + catering_time
+        final_catering_time ← max(final_catering_time,finish_time)
+    Return final_catering_time
 ```
 
 ### Parents Selection
@@ -99,7 +113,7 @@ Function select_parent_pairs(num_parents)
     For num_parents times
         parent1 ← roulette_wheel_selection(population_top,probabilities_top)
         parent2 ← roulette_wheel_selection(population_bottom,probabilities_bottom)
-        parents ← Add {parent1,parent2}
+        parents ← Pushback {parent1,parent2}
     Return parents    
 ```
 
